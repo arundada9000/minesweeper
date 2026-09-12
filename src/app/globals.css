@@ -1,26 +1,269 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------- Design token source ---------- */
+@import "../styles/tokens.css";
 
+/* ---------- Self-hosted fonts (offline, tree-shaken by Tailwind) ---------- */
+@import "@fontsource/public-sans/400.css";
+@import "@fontsource/public-sans/500.css";
+@import "@fontsource/public-sans/600.css";
+@import "@fontsource/public-sans/700.css";
+@import "@fontsource/lexend/400.css";
+@import "@fontsource/lexend/500.css";
+@import "@fontsource/lexend/600.css";
+@import "@fontsource/lexend/700.css";
+@import "@fontsource/lexend/800.css";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* ===========================================================
+   Map runtime tokens into Tailwind's theme so utilities resolve
+   through the CSS variables (inline => keep variable reference).
+   =========================================================== */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--type-sans);
+  --font-display: var(--type-display);
+  --font-mono: var(--type-mono);
+
+  /* type scale */
+  --text-2xs: var(--fs-2xs);
+  --text-xs: var(--fs-xs);
+  --text-sm: var(--fs-sm);
+  --text-base: var(--fs-md);
+  --text-lg: var(--fs-lg);
+  --text-xl: var(--fs-xl);
+  --text-2xl: var(--fs-2xl);
+  --text-3xl: var(--fs-3xl);
+  --text-4xl: var(--fs-4xl);
+
+  /* semantics */
+  --color-canvas: var(--canvas);
+  --color-canvas-deep: var(--canvas-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
+  --color-elevated: var(--elevated);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-track: var(--track);
+  --color-ring: var(--ring);
+  --color-scrim: var(--scrim);
+
+  /* board */
+  --color-board: var(--board);
+  --color-cell: var(--cell);
+  --color-cell-pressed: var(--cell-pressed);
+  --color-cell-revealed: var(--cell-revealed);
+  --color-cell-revealed-2: var(--cell-revealed-2);
+  --color-num-1: var(--num-1);
+  --color-num-2: var(--num-2);
+  --color-num-3: var(--num-3);
+  --color-num-4: var(--num-4);
+  --color-num-5: var(--num-5);
+  --color-num-6: var(--num-6);
+  --color-num-7: var(--num-7);
+  --color-num-8: var(--num-8);
+  --color-flag: var(--flag);
+  --color-flag-soft: var(--flag-soft);
+  --color-mine: var(--mine);
+  --color-mine-soft: var(--mine-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* shadows */
+  --shadow-ios: var(--shadow);
+  --shadow-ios-lg: var(--shadow-lg);
+  --shadow-pop: var(--shadow-pop);
+
+  /* motion */
+  --ease-ios: var(--ease);
+  --ease-touch: var(--ease-touch);
+  --ease-out: var(--ease-out);
+  --duration-fast: var(--dur-fast);
+  --duration-dflt: var(--dur);
+  --duration-spring: var(--dur-spring);
+  --duration-slow: var(--dur-slow);
+
+  /* z-index */
+  --z-sticky: var(--z-sticky);
+  --z-overlay: var(--z-overlay);
+  --z-modal: var(--z-modal);
+  --z-context: var(--z-context);
+  --z-palette: var(--z-palette);
+  --z-toast: var(--z-toast);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ===========================================================
+   Base
+   =========================================================== */
+@layer base {
+  html {
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--canvas);
+  }
+
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--type-sans);
+    font-size: var(--fs-md);
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+
+  /* Custom cursor: subtle hint that cells are tappable. */
+  .game-canvas button,
+  .game-canvas [role="button"] {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .game-canvas button:disabled {
+    cursor: default;
+  }
+  body,
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring) solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ===========================================================
+   Custom scrollbar (no default).
+   =========================================================== */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+    background-clip: content-box;
+  }
+}
+
+/* ===========================================================
+   Utilities
+   =========================================================== */
+@utility glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+@utility hairline {
+  border: 0.5px solid var(--line);
+}
+
+@utility hairline-strong {
+  border: 0.5px solid var(--line-strong);
+}
+
+@utility hairline-t {
+  border-top: 0.5px solid var(--line);
+}
+
+@utility hairline-b {
+  border-bottom: 0.5px solid var(--line);
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility press {
+  transition: transform var(--dur-fast) var(--ease-touch),
+    opacity var(--dur-fast) ease;
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+@utility no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@utility safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+@utility safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+@utility safe-right {
+  padding-right: env(safe-area-inset-right);
+}
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,0 +1,669 @@
+/* ===========================================================
+   SweeperMine - Design Tokens
+   iOS HIG inspired, CSS-variable driven, fully runtime-configurable.
+
+   Conventions:
+   - Raw tokens live on :root and [data-theme="*"] blocks.
+   - Tailwind maps them via @theme inline in globals.css, so utilities
+     resolve through the same variables and stay runtime-mutable.
+   - Everything a user can configure is a variable here: theme colors,
+     accent, fonts + size scale, density/spacing, radii, motion.
+   =========================================================== */
+
+:root {
+  /* ---------- Density & geometry ---------- */
+  --density: 1;
+  --spacing: calc(0.25rem * var(--density));
+
+  /* ---------- Radii (iOS material language) ---------- */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-pill: 999px;
+
+  /* ---------- Type scale (user-resizable via --ui-scale) ---------- */
+  --ui-scale: 1;
+  --fs-2xs: calc(0.6875rem * var(--ui-scale));
+  --fs-xs: calc(0.75rem * var(--ui-scale));
+  --fs-sm: calc(0.8125rem * var(--ui-scale));
+  --fs-md: calc(0.9375rem * var(--ui-scale));
+  --fs-lg: calc(1.0625rem * var(--ui-scale));
+  --fs-xl: calc(1.375rem * var(--ui-scale));
+  --fs-2xl: calc(1.75rem * var(--ui-scale));
+  --fs-3xl: calc(2.25rem * var(--ui-scale));
+  --fs-4xl: calc(3rem * var(--ui-scale));
+  --fs-hero: clamp(2.75rem, 7vw, 4.5rem);
+
+  /* ---------- Motion ---------- */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1); /* iOS sheet spring */
+  --ease-touch: cubic-bezier(0.4, 0, 0.2, 1); /* fast tactile */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-spring: 360ms;
+  --dur-slow: 600ms;
+
+  /* ---------- Elevation ---------- */
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-overlay: 60;
+  --z-modal: 80;
+  --z-context: 90;
+  --z-palette: 100;
+  --z-toast: 110;
+
+  /* ---------- Board geometry ---------- */
+  --board-gap: 2px;
+  --cell-size: 40px;
+  --focus-ring: 3px;
+}
+
+/* ===========================================================
+   THEMES
+   Each theme is a complete semantic color set. Values follow
+   the iOS system palette language used across the reference app.
+   =========================================================== */
+
+/* -------- Paper (iOS system light) -------- */
+:root,
+[data-theme="paper"] {
+  --canvas: #f2f2f7;
+  --canvas-deep: #e5e5ea;
+  --surface: #ffffff;
+  --surface-2: #f6f6f8;
+  --surface-hover: #ebebf0;
+  --elevated: #ffffff;
+  --ink: #000000;
+  --ink-soft: #3c3c43;
+  --ink-muted: #8e8e93;
+  --line: rgba(60, 60, 67, 0.14);
+  --line-strong: rgba(60, 60, 67, 0.3);
+
+  --accent: #007aff;
+  --accent-strong: #0062cc;
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --on-accent: #ffffff;
+
+  --green: #34c759;
+  --green-soft: rgba(52, 199, 89, 0.14);
+  --red: #ff3b30;
+  --red-soft: rgba(255, 59, 48, 0.14);
+  --amber: #ff9500;
+  --amber-soft: rgba(255, 149, 0, 0.14);
+  --gold: #ffcc00;
+  --gold-soft: rgba(255, 204, 0, 0.16);
+
+  --track: rgba(120, 120, 128, 0.16);
+  --ring: #007aff;
+  --scrim: rgba(0, 0, 0, 0.35);
+
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(60, 60, 67, 0.14);
+
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.14);
+  --shadow-pop: 0 24px 64px -12px rgba(0, 0, 0, 0.28);
+
+  /* Board */
+  --board: #e8e8ee;
+  --cell: #cfd3db;
+  --cell-pressed: #b9bec8;
+  --cell-revealed: #f4f5f7;
+  --cell-revealed-2: #ecedf0;
+  --num-1: #1d5ede;
+  --num-2: #0d7a3f;
+  --num-3: #c1121f;
+  --num-4: #4b3a9b;
+  --num-5: #8b1a2b;
+  --num-6: #0e7c86;
+  --num-7: #111318;
+  --num-8: #5f6b7a;
+  --flag: #ff3b30;
+  --flag-soft: rgba(255, 59, 48, 0.12);
+  --mine: #1c1c1e;
+  --mine-soft: rgba(28, 28, 30, 0.08);
+  --danger: #e0262e;
+  --danger-soft: rgba(224, 38, 46, 0.16);
+}
+
+/* -------- Mist (cool light) -------- */
+[data-theme="mist"] {
+  --canvas: #eef2f6;
+  --canvas-deep: #dfe5ed;
+  --surface: #ffffff;
+  --surface-2: #f4f7fa;
+  --surface-hover: #f2f5f8;
+  --elevated: #ffffff;
+  --ink: #111827;
+  --ink-soft: #4b5563;
+  --ink-muted: #9ca3af;
+  --line: rgba(156, 163, 175, 0.24);
+  --line-strong: rgba(156, 163, 175, 0.42);
+
+  --accent: #0284c7;
+  --accent-strong: #0369a1;
+  --accent-soft: rgba(2, 132, 199, 0.12);
+  --on-accent: #ffffff;
+
+  --green: #16a34a;
+  --green-soft: rgba(22, 163, 74, 0.14);
+  --red: #dc2626;
+  --red-soft: rgba(220, 38, 38, 0.14);
+  --amber: #d97706;
+  --amber-soft: rgba(217, 119, 6, 0.14);
+  --gold: #ca8a04;
+  --gold-soft: rgba(202, 138, 4, 0.16);
+
+  --track: rgba(156, 163, 175, 0.2);
+  --ring: #0284c7;
+  --scrim: rgba(17, 24, 39, 0.38);
+  --glass-bg: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(156, 163, 175, 0.24);
+  --shadow: 0 2px 12px rgba(17, 24, 39, 0.05);
+  --shadow-lg: 0 18px 44px rgba(17, 24, 39, 0.16);
+  --shadow-pop: 0 26px 68px -12px rgba(17, 24, 39, 0.3);
+
+  --board: #e6ebf2;
+  --cell: #cdd6e2;
+  --cell-pressed: #bac6d6;
+  --cell-revealed: #f5f7fa;
+  --cell-revealed-2: #e9edf3;
+  --num-1: #0b6bcb;
+  --num-2: #12803f;
+  --num-3: #c6291a;
+  --num-4: #5636a8;
+  --num-5: #9a2432;
+  --num-6: #0f7a80;
+  --num-7: #1f2937;
+  --num-8: #64748b;
+  --flag: #dc2626;
+  --flag-soft: rgba(220, 38, 38, 0.12);
+  --mine: #111827;
+  --mine-soft: rgba(17, 24, 39, 0.08);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.16);
+}
+
+/* -------- Sepia (warm light) -------- */
+[data-theme="sepia"] {
+  --canvas: #eae0ce;
+  --canvas-deep: #e0d3be;
+  --surface: #f5ecd9;
+  --surface-2: #f1e7d2;
+  --surface-hover: #ebe0cb;
+  --elevated: #fbf4e4;
+  --ink: #2c220e;
+  --ink-soft: #5c4b27;
+  --ink-muted: #87744d;
+  --line: rgba(92, 75, 39, 0.16);
+  --line-strong: rgba(92, 75, 39, 0.3);
+
+  --accent: #b25e00;
+  --accent-strong: #8f4b00;
+  --accent-soft: rgba(178, 94, 0, 0.12);
+  --on-accent: #fffdf7;
+
+  --green: #2e7d32;
+  --green-soft: rgba(46, 125, 50, 0.14);
+  --red: #c62828;
+  --red-soft: rgba(198, 40, 40, 0.14);
+  --amber: #d86900;
+  --amber-soft: rgba(216, 105, 0, 0.14);
+  --gold: #b27b00;
+  --gold-soft: rgba(178, 123, 0, 0.16);
+
+  --track: rgba(92, 75, 39, 0.16);
+  --ring: #b25e00;
+  --scrim: rgba(44, 34, 14, 0.42);
+  --glass-bg: rgba(245, 236, 217, 0.84);
+  --glass-border: rgba(92, 75, 39, 0.16);
+  --shadow: 0 2px 12px rgba(44, 34, 14, 0.05);
+  --shadow-lg: 0 16px 40px rgba(44, 34, 14, 0.16);
+  --shadow-pop: 0 24px 64px -12px rgba(44, 34, 14, 0.3);
+
+  --board: #ddd0b6;
+  --cell: #c4b494;
+  --cell-pressed: #b1a182;
+  --cell-revealed: #f3ead6;
+  --cell-revealed-2: #e8dcc0;
+  --num-1: #8a4d12;
+  --num-2: #14713a;
+  --num-3: #a32b1a;
+  --num-4: #57408f;
+  --num-5: #7c2431;
+  --num-6: #0e6367;
+  --num-7: #2c220e;
+  --num-8: #6b6a55;
+  --flag: #b3261e;
+  --flag-soft: rgba(179, 38, 30, 0.12);
+  --mine: #2c220e;
+  --mine-soft: rgba(44, 34, 14, 0.08);
+  --danger: #b3261e;
+  --danger-soft: rgba(179, 38, 30, 0.16);
+}
+
+/* -------- Slate (OLED dark, default dark) -------- */
+[data-theme="slate"] {
+  --canvas: #000000;
+  --canvas-deep: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-hover: #3a3a3c;
+  --elevated: #2c2c2e;
+  --ink: #ffffff;
+  --ink-soft: #ebebf5;
+  --ink-muted: #8e8e93;
+  --line: rgba(84, 84, 88, 0.36);
+  --line-strong: rgba(84, 84, 88, 0.6);
+
+  --accent: #0a84ff;
+  --accent-strong: #409cff;
+  --accent-soft: rgba(10, 132, 255, 0.18);
+  --on-accent: #ffffff;
+
+  --green: #30d158;
+  --green-soft: rgba(48, 209, 88, 0.18);
+  --red: #ff453a;
+  --red-soft: rgba(255, 69, 58, 0.2);
+  --amber: #ff9f0a;
+  --amber-soft: rgba(255, 159, 10, 0.2);
+  --gold: #ffd60a;
+  --gold-soft: rgba(255, 214, 10, 0.18);
+
+  --track: rgba(120, 120, 128, 0.28);
+  --ring: #0a84ff;
+  --scrim: rgba(0, 0, 0, 0.65);
+  --glass-bg: rgba(28, 28, 30, 0.82);
+  --glass-border: rgba(84, 84, 88, 0.36);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 24px 72px -12px rgba(0, 0, 0, 0.8);
+
+  --board: #161618;
+  --cell: #323236;
+  --cell-pressed: #414146;
+  --cell-revealed: #222225;
+  --cell-revealed-2: #1a1a1c;
+  --num-1: #6cb1ff;
+  --num-2: #48d985;
+  --num-3: #ff6a60;
+  --num-4: #b5a7ff;
+  --num-5: #ff9d8f;
+  --num-6: #3ee0ea;
+  --num-7: #f5f5f7;
+  --num-8: #a1a1ab;
+  --flag: #ff453a;
+  --flag-soft: rgba(255, 69, 58, 0.2);
+  --mine: #f5f5f7;
+  --mine-soft: rgba(255, 255, 255, 0.1);
+  --danger: #ff453a;
+  --danger-soft: rgba(255, 69, 58, 0.24);
+}
+
+/* -------- Midnight (deep OLED indigo) -------- */
+[data-theme="midnight"] {
+  --canvas: #000000;
+  --canvas-deep: #0a0a0c;
+  --surface: #141416;
+  --surface-2: #222226;
+  --surface-hover: #2e2e34;
+  --elevated: #232329;
+  --ink: #ffffff;
+  --ink-soft: #d1d1d6;
+  --ink-muted: #8e8e93;
+  --line: rgba(84, 84, 88, 0.32);
+  --line-strong: rgba(84, 84, 88, 0.55);
+
+  --accent: #5e5ce6;
+  --accent-strong: #7d7aff;
+  --accent-soft: rgba(94, 92, 230, 0.2);
+  --on-accent: #ffffff;
+
+  --green: #30d158;
+  --green-soft: rgba(48, 209, 88, 0.18);
+  --red: #ff453a;
+  --red-soft: rgba(255, 69, 58, 0.2);
+  --amber: #ff9f0a;
+  --amber-soft: rgba(255, 159, 10, 0.2);
+  --gold: #ffd60a;
+  --gold-soft: rgba(255, 214, 10, 0.18);
+
+  --track: rgba(120, 120, 128, 0.28);
+  --ring: #5e5ce6;
+  --scrim: rgba(0, 0, 0, 0.75);
+  --glass-bg: rgba(20, 20, 22, 0.84);
+  --glass-border: rgba(84, 84, 88, 0.32);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.75);
+  --shadow-pop: 0 24px 72px -12px rgba(0, 0, 0, 0.85);
+
+  --board: #101013;
+  --cell: #26262c;
+  --cell-pressed: #34343c;
+  --cell-revealed: #191920;
+  --cell-revealed-2: #14141a;
+  --num-1: #8f8cff;
+  --num-2: #4fe083;
+  --num-3: #ff6a60;
+  --num-4: #c4baff;
+  --num-5: #ff9d8f;
+  --num-6: #58e2ea;
+  --num-7: #f5f5f7;
+  --num-8: #a8a8b3;
+  --flag: #ff453a;
+  --flag-soft: rgba(255, 69, 58, 0.2);
+  --mine: #f5f5f7;
+  --mine-soft: rgba(255, 255, 255, 0.1);
+  --danger: #ff453a;
+  --danger-soft: rgba(255, 69, 58, 0.26);
+}
+
+/* -------- Ocean (deep blue dark) -------- */
+[data-theme="ocean"] {
+  --canvas: #030d1a;
+  --canvas-deep: #07142a;
+  --surface: #0b1b30;
+  --surface-2: #132742;
+  --surface-hover: #1b3050;
+  --elevated: #142b47;
+  --ink: #e8f2ff;
+  --ink-soft: #a9c4e2;
+  --ink-muted: #6a87a8;
+  --line: rgba(168, 196, 226, 0.2);
+  --line-strong: rgba(168, 196, 226, 0.38);
+
+  --accent: #38bdf8;
+  --accent-strong: #7dd3fc;
+  --accent-soft: rgba(56, 189, 248, 0.2);
+  --on-accent: #06121f;
+
+  --green: #4ade80;
+  --green-soft: rgba(74, 222, 128, 0.18);
+  --red: #f87171;
+  --red-soft: rgba(248, 113, 113, 0.2);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.2);
+  --gold: #fde047;
+  --gold-soft: rgba(253, 224, 71, 0.18);
+
+  --track: rgba(148, 184, 220, 0.2);
+  --ring: #38bdf8;
+  --scrim: rgba(0, 6, 14, 0.72);
+  --glass-bg: rgba(11, 27, 48, 0.8);
+  --glass-border: rgba(168, 196, 226, 0.18);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.65);
+  --shadow-pop: 0 24px 72px -12px rgba(0, 0, 0, 0.75);
+
+  --board: #061322;
+  --cell: #132b45;
+  --cell-pressed: #1c3a5e;
+  --cell-revealed: #0d2036;
+  --cell-revealed-2: #0a1a2e;
+  --num-1: #67d8f5;
+  --num-2: #6ef0a4;
+  --num-3: #ff8a80;
+  --num-4: #c9b8ff;
+  --num-5: #ffb4a1;
+  --num-6: #70e8ea;
+  --num-7: #f0f8ff;
+  --num-8: #9db8d4;
+  --flag: #ff7a72;
+  --flag-soft: rgba(248, 113, 113, 0.22);
+  --mine: #e8f2ff;
+  --mine-soft: rgba(232, 242, 255, 0.12);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.28);
+}
+
+/* -------- Grape (dark violet) -------- */
+[data-theme="grape"] {
+  --canvas: #13051f;
+  --canvas-deep: #1e0b2e;
+  --surface: #241038;
+  --surface-2: #33194d;
+  --surface-hover: #3d225c;
+  --elevated: #351a52;
+  --ink: #f5ecff;
+  --ink-soft: #c9b3e6;
+  --ink-muted: #8b76a8;
+  --line: rgba(210, 180, 240, 0.2);
+  --line-strong: rgba(210, 180, 240, 0.38);
+
+  --accent: #c084fc;
+  --accent-strong: #d8b4fe;
+  --accent-soft: rgba(192, 132, 252, 0.22);
+  --on-accent: #15021f;
+
+  --green: #6ee7a0;
+  --green-soft: rgba(110, 231, 160, 0.18);
+  --red: #fda4af;
+  --red-soft: rgba(253, 164, 175, 0.2);
+  --amber: #fcd34d;
+  --amber-soft: rgba(252, 211, 77, 0.2);
+  --gold: #fde68a;
+  --gold-soft: rgba(253, 230, 138, 0.18);
+
+  --track: rgba(210, 180, 240, 0.2);
+  --ring: #c084fc;
+  --scrim: rgba(10, 0, 18, 0.72);
+  --glass-bg: rgba(36, 16, 56, 0.82);
+  --glass-border: rgba(210, 180, 240, 0.18);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 24px 72px -12px rgba(0, 0, 0, 0.8);
+
+  --board: #170923;
+  --cell: #331a4e;
+  --cell-pressed: #432567;
+  --cell-revealed: #261342;
+  --cell-revealed-2: #200f3a;
+  --num-1: #d0b2ff;
+  --num-2: #7bf0a8;
+  --num-3: #ff9daa;
+  --num-4: #e6c9ff;
+  --num-5: #ffb3c0;
+  --num-6: #87f0f0;
+  --num-7: #f8f2ff;
+  --num-8: #b49aca;
+  --flag: #ff8a9b;
+  --flag-soft: rgba(253, 164, 175, 0.22);
+  --mine: #f5ecff;
+  --mine-soft: rgba(245, 236, 255, 0.12);
+  --danger: #fda4af;
+  --danger-soft: rgba(253, 164, 175, 0.28);
+}
+
+/* -------- Contrast (high accessibility) -------- */
+[data-theme="contrast"] {
+  --canvas: #ffffff;
+  --canvas-deep: #f0f0f0;
+  --surface: #ffffff;
+  --surface-2: #e6e6e6;
+  --surface-hover: #d8d8d8;
+  --elevated: #ffffff;
+  --ink: #000000;
+  --ink-soft: #1c1c1e;
+  --ink-muted: #48484a;
+  --line: #8e8e93;
+  --line-strong: #000000;
+
+  --accent: #0040dd;
+  --accent-strong: #002bb0;
+  --accent-soft: rgba(0, 64, 221, 0.16);
+  --on-accent: #ffffff;
+
+  --green: #007d30;
+  --green-soft: rgba(0, 125, 48, 0.18);
+  --red: #cc0c16;
+  --red-soft: rgba(204, 12, 22, 0.16);
+  --amber: #a05c00;
+  --amber-soft: rgba(160, 92, 0, 0.16);
+  --gold: #7a5600;
+  --gold-soft: rgba(122, 86, 0, 0.16);
+
+  --track: #c4c4c6;
+  --ring: #0040dd;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #8e8e93;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 24px 68px -8px rgba(0, 0, 0, 0.4);
+
+  --board: #d8d8d8;
+  --cell: #b4b4b8;
+  --cell-pressed: #99999e;
+  --cell-revealed: #ffffff;
+  --cell-revealed-2: #f0f0f0;
+  --num-1: #0030b0;
+  --num-2: #006b28;
+  --num-3: #b80000;
+  --num-4: #5a0080;
+  --num-5: #8a0000;
+  --num-6: #005a5e;
+  --num-7: #000000;
+  --num-8: #333333;
+  --flag: #c40000;
+  --flag-soft: rgba(196, 0, 0, 0.14);
+  --mine: #000000;
+  --mine-soft: rgba(0, 0, 0, 0.12);
+  --danger: #9b0000;
+  --danger-soft: rgba(155, 0, 0, 0.2);
+}
+
+/* ===========================================================
+   ACCENTS
+   Overlays any theme. Default accent follows the theme's --accent.
+   =========================================================== */
+[data-accent="blue"] {
+  --accent: #007aff;
+  --accent-strong: #0062cc;
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --ring: #007aff;
+}
+[data-accent="violet"] {
+  --accent: #5e5ce6;
+  --accent-strong: #4a48b8;
+  --accent-soft: rgba(94, 92, 230, 0.14);
+  --ring: #5e5ce6;
+}
+[data-accent="red"] {
+  --accent: #ff3b30;
+  --accent-strong: #d9372e;
+  --accent-soft: rgba(255, 59, 48, 0.12);
+  --ring: #ff3b30;
+}
+[data-accent="green"] {
+  --accent: #34c759;
+  --accent-strong: #28a745;
+  --accent-soft: rgba(52, 199, 89, 0.12);
+  --ring: #34c759;
+}
+[data-accent="amber"] {
+  --accent: #ff9500;
+  --accent-strong: #d97f00;
+  --accent-soft: rgba(255, 149, 0, 0.12);
+  --ring: #ff9500;
+}
+[data-accent="pink"] {
+  --accent: #ff2d55;
+  --accent-strong: #e01e45;
+  --accent-soft: rgba(255, 45, 85, 0.12);
+  --ring: #ff2d55;
+}
+[data-accent="teal"] {
+  --accent: #30b0c7;
+  --accent-strong: #2291a6;
+  --accent-soft: rgba(48, 176, 199, 0.12);
+  --ring: #30b0c7;
+}
+[data-accent="gold"] {
+  --accent: #d9a90b;
+  --accent-strong: #b78f08;
+  --accent-soft: rgba(217, 169, 11, 0.12);
+  --ring: #d9a90b;
+}
+
+/* ===========================================================
+   DENSITY
+   Scales the Tailwind spacing system at runtime.
+   =========================================================== */
+[data-density="compact"] {
+  --density: 0.85;
+  --spacing: calc(0.25rem * var(--density));
+}
+[data-density="cozy"] {
+  --density: 1;
+  --spacing: calc(0.25rem * var(--density));
+}
+[data-density="roomy"] {
+  --density: 1.15;
+  --spacing: calc(0.25rem * var(--density));
+}
+
+/* ===========================================================
+   UI SCALE (font sizes)
+   =========================================================== */
+[data-scale="compact"] {
+  --ui-scale: 0.9;
+}
+[data-scale="regular"] {
+  --ui-scale: 1;
+}
+[data-scale="large"] {
+  --ui-scale: 1.12;
+}
+[data-scale="x-large"] {
+  --ui-scale: 1.28;
+}
+
+/* ===========================================================
+   FONTS
+   Configurable families. Defaults use the self-hosted SF-like
+   stacks. Components must reference these, never literal stacks.
+   =========================================================== */
+[data-font="system"] {
+  --type-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --type-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --type-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+[data-font="public-sans"] {
+  --type-sans: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --type-display: "Public Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --type-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+[data-font="lexend"] {
+  --type-sans: "Lexend", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --type-display: "Lexend", -apple-system, BlinkMacSystemFont, sans-serif;
+  --type-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+/* System theme is the default when no data-font is set. */
+:root {
+  --type-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --type-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --type-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+
+/* ------------------------------------------------
+   Board sizing. Cell size adapts to screen via JS,
+   but tokens stay authoritative for defaults.
+   ------------------------------------------------ */
+[data-cell="s"] {
+  --cell-size: 32px;
+}
+[data-cell="m"] {
+  --cell-size: 40px;
+}
+[data-cell="l"] {
+  --cell-size: 48px;
+}
