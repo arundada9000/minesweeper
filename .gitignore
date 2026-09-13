@@ -36,6 +36,17 @@ yarn-error.log*
 # vercel
 .vercel
 
+# ai / personal workspace files
+/rules/
+AGENTS.md
+CLAUDE.md
+.claude/
+.cursor/
+.opencode/
+.idea/
+.vs/
+*.local
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
