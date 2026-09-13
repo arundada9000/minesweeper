@@ -1,9 +1,9 @@
 /**
  * Public site facts. SITE_URL feeds the canonical/sitemap/Robots metadata and
- * the JSON-LD structured data; change it when the game gets a real domain.
+ * the JSON-LD structured data.
  */
 
-export const SITE_URL = "https://arundada9000.github.io/minesweeper";
+export const SITE_URL = "https://sweepermine.vercel.app";
 
 export const SITE_NAME = "SweeperMine";
 export const SITE_DESCRIPTION =

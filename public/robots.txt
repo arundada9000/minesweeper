@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 
-Sitemap: https://arundada9000.github.io/minesweeper/sitemap.xml
+Sitemap: https://sweepermine.vercel.app/sitemap.xml
