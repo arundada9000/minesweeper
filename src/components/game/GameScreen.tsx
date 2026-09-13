@@ -26,6 +26,7 @@ import {
   CalendarIcon,
   ZapIcon,
   LeafIcon,
+  GraduationIcon,
   CommandIcon,
   RestartIcon,
   SpeakerIcon,
@@ -39,6 +40,7 @@ import { Tooltip } from "../ui/primitives";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
 import { ContinueOverlay, PauseOverlay, ResultOverlay } from "./Overlays";
+import { OnboardingOverlay } from "./OnboardingOverlay";
 import { ModeSelect } from "./ModeSelect";
 import { SettingsSheet } from "./SettingsSheet";
 import { StatsSheet } from "./StatsSheet";
@@ -67,6 +69,7 @@ export function GameScreen() {
   const preset = useGame.getState().preset;
   const cols = useGame.getState().cols;
   const rows = useGame.getState().rows;
+  const onboarded = useSettings((s) => s.onboarded);
 
   /* ------------------------------ document tokens ------------------------------ */
 
@@ -239,6 +242,7 @@ export function GameScreen() {
       daily: <CalendarIcon size={15} />,
       rush: <ZapIcon size={15} />,
       zen: <LeafIcon size={15} />,
+      practice: <GraduationIcon size={15} />,
     };
     return [
       {
@@ -585,6 +589,7 @@ export function GameScreen() {
       <CommandPalette open={showCommand} onClose={() => setShowCommand(false)} commands={commands} />
       <ContextMenuLayer />
       <ToastViewport />
+      <AnimatePresence>{!onboarded && <OnboardingOverlay key="onboarding" />}</AnimatePresence>
       </div>
     </MotionConfig>
   );

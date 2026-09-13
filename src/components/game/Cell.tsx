@@ -8,6 +8,7 @@ import { FlagIcon, QuestionIcon, MineIcon, CloseIcon } from "../ui/icons";
 import { useGame } from "@/game/useGameStore";
 import { useSettings } from "@/game/useSettingsStore";
 import { playSound, haptic } from "@/game/sound";
+import { getMode } from "@/engine/modes";
 import { useCellGestures } from "./useCellGestures";
 
 const NUM_COLOR: Record<number, string> = {
@@ -37,6 +38,7 @@ export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCurs
   });
   const cell = useGame.getState().engine.cells[index];
   const longPressMs = useSettings.getState().longPressDelayMs;
+  const train = getMode(useGame.getState().mode).train === true;
 
   const state = cell?.state ?? "hidden";
   const revealed = state === "revealed";
@@ -115,6 +117,15 @@ export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCurs
     }
   } else {
     surfaceClass = "bg-cell";
+    if (train && isMine) {
+      content = <MineIcon className="opacity-40 text-mine" />;
+      label = "Mine";
+    } else if (train && number > 0) {
+      content = (
+        <span className={`${NUM_COLOR[number]} opacity-40`}>{number}</span>
+      );
+      label = `${number} adjacent mines`;
+    }
   }
 
   // Hidden cells get a pressed affordance; revealed cells stay flat.

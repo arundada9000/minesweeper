@@ -18,6 +18,34 @@ const PHASE_TINT: Record<string, string> = {
   idle: "text-ink-muted",
 };
 
+function MiniRunStats({ engine }: { engine: GameEngine }) {
+  const cfg = engine.config;
+  const totalCells = cfg.width * cfg.height;
+  const safeCells = totalCells - cfg.mineCount;
+  const uncovered = engine.revealedSafeCount;
+  const left = Math.max(0, safeCells - uncovered);
+
+  return (
+    <div role="group" aria-label="Run progress" className="hidden items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md lg:flex">
+      <div className="flex items-center gap-1.5 rounded-xl bg-elevated px-2.5">
+        <FlagIcon size={12} className="text-flag" />
+        <span className="font-mono text-sm font-bold tabular text-ink">{engine.flagsOnBoard}</span>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Flags</span>
+      </div>
+      <div className="flex items-center gap-1.5 rounded-xl bg-elevated px-2.5">
+        <GridIcon size={12} className="text-accent" />
+        <span className="font-mono text-sm font-bold tabular text-ink">{uncovered}</span>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Discovered</span>
+      </div>
+      <div className="flex items-center gap-1.5 rounded-xl bg-elevated px-2.5">
+        <QuestionIcon size={12} className="text-ink-soft" />
+        <span className="font-mono text-sm font-bold tabular text-ink">{left}</span>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Left</span>
+      </div>
+    </div>
+  );
+}
+
 function RunStats({ engine }: { engine: GameEngine }) {
   const cfg = engine.config;
   const totalCells = cfg.width * cfg.height;
@@ -27,11 +55,11 @@ function RunStats({ engine }: { engine: GameEngine }) {
   const progress = safeCells > 0 ? uncovered / safeCells : 0;
 
   return (
-    <div role="group" aria-label="Run progress" className="grid grid-cols-3 items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md">
+    <div role="group" aria-label="Run progress" className="grid grid-cols-3 items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md lg:hidden">
       <div className="flex flex-col items-center justify-center gap-0.5 rounded-xl bg-elevated px-2 py-1.5">
         <div className="flex items-baseline gap-1.5">
           <FlagIcon size={13} className="text-flag" />
-          <span className="font-mono text-base font-bold tabular text-ink">{engine.flagsPlaced}</span>
+          <span className="font-mono text-base font-bold tabular text-ink">{engine.flagsOnBoard}</span>
         </div>
         <span className="text-2xs uppercase tracking-wide text-ink-muted">Flags</span>
       </div>
@@ -121,6 +149,8 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
           </div>
         )}
       </div>
+
+      <MiniRunStats engine={engine} />
 
       <button
         type="button"

@@ -257,4 +257,25 @@ describe("GameEngine lifecycle", () => {
     engine.undo();
     expect(engine.flagsPlaced).toBe(0);
   });
+
+  it("flagsOnBoard tracks live flags while flagsPlaced stays cumulative", () => {
+    const engine = new GameEngine(makeConfig({ questionMarks: false }));
+    engine.reveal(CENTER);
+    engine.cycleFlag(0);
+    engine.cycleFlag(0);
+    expect(engine.flagsOnBoard).toBe(0);
+    engine.cycleFlag(0);
+    expect(engine.flagsOnBoard).toBe(1);
+    expect(engine.flagsPlaced).toBe(2);
+  });
+
+  it("unflag removes a live flag without erasing the placement count", () => {
+    const engine = new GameEngine(makeConfig({ questionMarks: false }));
+    engine.reveal(CENTER);
+    engine.cycleFlag(0);
+    expect(engine.flagsOnBoard).toBe(1);
+    engine.unflag(0);
+    expect(engine.flagsOnBoard).toBe(0);
+    expect(engine.flagsPlaced).toBe(1);
+  });
 });

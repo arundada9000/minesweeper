@@ -97,6 +97,24 @@ export const MODES: Record<ModeId, ModeDefinition> = {
     deterministic: false,
     winRule: "clear",
   },
+
+  practice: {
+    id: "practice",
+    name: "Practice",
+    description: "Every mine and every number stays in sight. Learn by playing.",
+    topology: "square",
+    defaults: { ...SHARED_DEFAULTS, width: 9, height: 9, mineCount: 10 },
+    timer: "none",
+    score: "zen",
+    undoAllowed: true,
+    hintsAllowed: true,
+    flagsAllowed: true,
+    questionAllowed: true,
+    competitive: false,
+    deterministic: false,
+    winRule: "clear",
+    train: true,
+  },
 };
 
 export function getMode(id: ModeId): ModeDefinition {
@@ -111,4 +129,5 @@ export const MODE_LIST: readonly ModeDefinition[] = [
   MODES.daily,
   MODES.rush,
   MODES.zen,
+  MODES.practice,
 ];

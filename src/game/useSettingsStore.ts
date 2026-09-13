@@ -25,6 +25,8 @@ export interface Settings {
   haptics: boolean;
   autoPause: boolean;
   longPressDelayMs: number;
+  /** First-run onboarding has been completed. */
+  onboarded: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -38,6 +40,7 @@ export const defaultSettings: Settings = {
   haptics: true,
   autoPause: true,
   longPressDelayMs: 420,
+  onboarded: false,
 };
 
 const THEME_ORDER = ["paper", "mist", "sepia", "slate", "midnight", "ocean", "grape", "contrast"] as const;
@@ -63,6 +66,7 @@ interface SettingsState extends Settings {
   toggleSound: () => void;
   toggleHaptics: () => void;
   toggleMotion: () => void;
+  completeOnboarding: () => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -74,6 +78,7 @@ export const useSettings = create<SettingsState>()(
       toggleHaptics: () => set((s) => ({ haptics: !s.haptics })),
       toggleMotion: () =>
         set((s) => ({ motion: s.motion === "full" ? "reduced" : s.motion === "reduced" ? "system" : "full" })),
+      completeOnboarding: () => set({ onboarded: true }),
     }),
     { name: "swm.settings.v1", version: 1 }
   )

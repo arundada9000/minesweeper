@@ -323,3 +323,13 @@ export function GridIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function GraduationIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4Z" />
+      <path d="M6.5 10.5V15c0 2 3 3.5 5.5 3.5s5.5-1.5 5.5-3.5v-4.5" />
+      <path d="M21.5 8.5V13" />
+    </svg>
+  );
+}

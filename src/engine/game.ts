@@ -100,6 +100,11 @@ export class GameEngine {
     return this.state.flagsPlaced;
   }
 
+  /** Flags currently on the board (excludes flags removed by unflag/cycle). */
+  get flagsOnBoard(): number {
+    return this.countState("flagged");
+  }
+
   /** Countdown budget for Rush; null when the mode is untimed. */
   get timeLimitMs(): number | null {
     return this.config.timeLimitMs ?? null;

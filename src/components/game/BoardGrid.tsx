@@ -61,8 +61,9 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
     // the tapped cell on the very first reveal.
     return (
       <div ref={scrollerRef} className="mines-scroll h-full w-full overflow-auto rounded-2xl">
+        <div className="flex min-h-full w-full flex-col">
         <div
-          className="mines-grid mx-auto p-4"
+          className="mines-grid m-auto p-4"
           style={{ "--mines-cols": cols, "--mines-rows": rows, "--cell-w": `${dims.cell}px`, "--cell-gap": `${dims.gap}px`, "--cell-radius": "var(--radius-sm)" } as CSSProperties}
         >
           {Array.from({ length: cols * rows }, (_, i) => (
@@ -79,22 +80,25 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
             />
           ))}
         </div>
-        <p className="mx-auto mt-1 w-fit rounded-full bg-elevated/80 px-3 py-1 text-sm text-ink-muted backdrop-blur-sm">
+        <p className="m-auto mb-4 w-fit rounded-full bg-elevated/80 px-3 py-1 text-sm text-ink-muted backdrop-blur-sm">
           Tap any cell to start
         </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div ref={scrollerRef} className="mines-scroll h-full w-full overflow-auto rounded-2xl">
+      <div className="flex min-h-full w-full flex-col">
       <div
-        className="mines-grid mx-auto p-4"
+        className="mines-grid m-auto p-4"
         style={{ "--mines-cols": cols, "--mines-rows": rows, "--cell-w": `${dims.cell}px`, "--cell-gap": `${dims.gap}px`, "--cell-radius": "var(--radius-sm)" } as CSSProperties}
       >
         {cells.map((cell, i) => (
           <Cell key={cell.index} index={cell.index} cols={cols} isNew={lastReveal.includes(cell.index)} revealOrder={lastReveal.indexOf(cell.index)} isCursor={cursor === cell.index} />
         ))}
+      </div>
       </div>
     </div>
   );

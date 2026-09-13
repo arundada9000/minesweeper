@@ -75,7 +75,7 @@ export interface BoardConfigDefaults {
   questionMarks: boolean;
 }
 
-export type ModeId = "classic" | "no-guess" | "daily" | "rush" | "zen";
+export type ModeId = "classic" | "no-guess" | "daily" | "rush" | "zen" | "practice";
 
 export interface ModeDefinition {
   readonly id: ModeId;
@@ -92,4 +92,6 @@ export interface ModeDefinition {
   readonly competitive: boolean;
   readonly deterministic: boolean;
   readonly winRule: "clear" | "rush";
+  /** Learning mode: mines and adjacency counts are shown on hidden cells. */
+  readonly train?: boolean;
 }

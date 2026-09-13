@@ -6,7 +6,7 @@
 
 import { useMemo, useState } from "react";
 import { Sheet, SegmentedControl, Button, type SegmentedOption } from "../ui/primitives";
-import { GridIcon, SparkleIcon, CalendarIcon, ZapIcon, LeafIcon } from "../ui/icons";
+import { GridIcon, SparkleIcon, CalendarIcon, ZapIcon, LeafIcon, GraduationIcon } from "../ui/icons";
 import { PRESETS_BY_MODE, CUSTOM_DEFAULTS, clampCustom, type PresetId, type CustomBoardSpec } from "@/engine/presets";
 import { MODE_LIST } from "@/engine/modes";
 import type { ModeId } from "@/engine/types";
@@ -19,6 +19,7 @@ const MODE_ICONS = {
   daily: CalendarIcon,
   rush: ZapIcon,
   zen: LeafIcon,
+  practice: GraduationIcon,
 } as const;
 
 interface ModeSelectProps {
@@ -31,6 +32,7 @@ function presetHint(mode: ModeId): string {
   if (mode === "rush") return "Set your pace";
   if (mode === "daily") return `Today, ${dateStamp()}`;
   if (mode === "zen") return "No timer, undo always on";
+  if (mode === "practice") return "Every mine is visible";
   return "Set your challenge";
 }
 
@@ -75,7 +77,13 @@ export function ModeSelect({ open, onClose, onStart }: ModeSelectProps) {
   };
 
   const startLabel =
-    modeId === "daily" ? "Start today's board" : modeId === "rush" ? "Start the clock" : "Start board";
+    modeId === "daily"
+      ? "Start today's board"
+      : modeId === "rush"
+        ? "Start the clock"
+        : modeId === "practice"
+          ? "Start practicing"
+          : "Start board";
   const StartIcon = MODE_ICONS[modeId];
 
   return (
@@ -168,6 +176,8 @@ function modeHint(id: ModeId): string {
       return "Timed";
     case "zen":
       return "Relaxed";
+    case "practice":
+      return "Learn";
     default:
       return "Original";
   }

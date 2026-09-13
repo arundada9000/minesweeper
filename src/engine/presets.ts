@@ -27,6 +27,8 @@ export const CLASSIC_PRESETS: readonly ModePreset[] = [
 
 export const ZEN_PRESETS: readonly ModePreset[] = [...CLASSIC_PRESETS];
 
+export const PRACTICE_PRESETS: readonly ModePreset[] = [...CLASSIC_PRESETS];
+
 export const NO_GUESS_PRESETS: readonly ModePreset[] = [
   { id: "beginner", name: "Beginner", width: 9, height: 9, mineCount: 10, hint: "9 x 9, 10 mines" },
   { id: "advanced", name: "Advanced", width: 14, height: 14, mineCount: 30, hint: "14 x 14, 30 mines" },
@@ -53,6 +55,7 @@ export const PRESETS_BY_MODE: Record<ModeId, readonly ModePreset[]> = {
   daily: [DAILY_PRESET],
   rush: RUSH_PRESETS,
   zen: ZEN_PRESETS,
+  practice: PRACTICE_PRESETS,
 };
 
 export function getPreset(mode: ModeId, id: PresetId): ModePreset | null {
