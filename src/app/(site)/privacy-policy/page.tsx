@@ -1,4 +1,5 @@
 import { SITE_URL, SITE_TAGLINE } from "@/lib/site";
+import { Reveal } from "@/components/site/Reveal";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,15 +12,18 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-12 sm:px-6">
-      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
-        <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-6">6</span>
-        Privacy
-      </div>
+      <Reveal onMount>
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
+          <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-6">6</span>
+          Privacy
+        </div>
 
-      <h1 className="font-display text-4xl font-bold tracking-tight text-ink">Privacy Policy</h1>
-      <p className="mt-3 text-ink-muted">Last updated: September 2026</p>
+        <h1 className="font-display text-4xl font-bold tracking-tight text-ink">Privacy Policy</h1>
+        <p className="mt-3 text-ink-muted">Last updated: September 2026</p>
+      </Reveal>
 
-      <div className="mt-10 space-y-6 text-[15px] leading-7 text-ink-soft">
+      <Reveal y={16} className="mt-10">
+        <div className="space-y-6 text-[15px] leading-7 text-ink-soft">
         <p>
           The short version: Easy Minesweeper collects almost nothing, and everything
           it does store lives on your own device. This policy explains that in full.
@@ -87,6 +91,7 @@ export default function PrivacyPage() {
           conversation through the project's public repository page.
         </p>
       </div>
+      </Reveal>
     </div>
   );
 }

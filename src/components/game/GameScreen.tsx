@@ -6,6 +6,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import Link from "next/link";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { useGame, loadSavedRun, clearSavedRun } from "@/game/useGameStore";
 import { useStats, type FinishedNotice } from "@/game/useStatsStore";
@@ -19,7 +20,6 @@ import {
   PauseIcon,
   PlayIcon,
   SettingsIcon,
-  KeyboardIcon,
   TrophyIcon,
   HelpIcon,
   GridIcon,
@@ -38,7 +38,6 @@ import { CommandPalette, type Command } from "../ui/CommandPalette";
 import { ContextMenuLayer, useContextMenu, type MenuItem } from "../ui/ContextMenu";
 import { ToastViewport, toast } from "../ui/Toasts";
 import { Tooltip } from "../ui/primitives";
-import { AUTHOR_NAME } from "@/lib/site";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
 import { HintBanner } from "./HintBanner";
@@ -492,15 +491,19 @@ export function GameScreen() {
     ? 1000 + Math.round((timeLimit !== null && timeLimit !== undefined ? Math.max(0, timeLimit - engine.elapsedMs) : 0) / 1000) * 10
     : Math.round(engine.elapsedMs / 1000);
   const timeUp = lost && engine.reason === "Time's up.";
-  const showUndoHint = modeDef.undoAllowed;
-  const showHintKbd = modeDef.hintsAllowed;
 
   return (
     <MotionConfig reducedMotion="user">
       <div className="no-select flex h-dvh flex-col bg-canvas">
       <header className="safe-top flex items-center justify-between px-5 pt-2.5">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-lg font-bold tracking-tight text-ink font-display">SweeperMine</h1>
+          <Link
+            href="/"
+            aria-label="Easy Minesweeper home"
+            className="press -m-1 flex items-center rounded-lg p-1 text-lg font-bold tracking-tight text-ink font-display transition-colors hover:text-ink-soft"
+          >
+            SweeperMine
+          </Link>
           <span className="hidden text-2xs uppercase tracking-widest text-ink-muted sm:block">{modeLabel} / {presetLabel}</span>
         </div>
         <div className="flex items-center gap-1">
@@ -634,39 +637,19 @@ export function GameScreen() {
           </AnimatePresence>
         </div>
 
-        <div className="safe-bottom flex items-center justify-center gap-2 px-5 pb-2 text-2xs text-ink-muted">
-          <KeyboardIcon size={13} />
-          {mode !== "zen" ? (
-            <span className="hidden sm:inline">
-              Arrows move / Space reveals / F flags {showUndoHint ? "/ Z undoes" : ""} {showHintKbd ? "/ H hints" : ""} / R restarts / P pauses
-            </span>
-          ) : (
-            <span className="hidden sm:inline">
-              Arrows move / Space reveals / F flags / R restarts {showUndoHint ? "/ Z undoes" : ""} {showHintKbd ? "/ H hints" : ""}
-            </span>
-          )}
-          <span className="sm:hidden">Tap to reveal / Hold to flag / Double-tap to clear around a number</span>
-          <span className="hidden lg:inline">/ Ctrl+K commands</span>
-        </div>
-
-        {installEvt && !installed && (
-          <div className="flex items-center justify-center gap-3 px-5 py-2">
-            <span className="text-2xs text-ink-muted">SweeperMine keeps playing offline.</span>
+        <div className="safe-bottom flex items-center justify-center gap-2 px-5 pb-2">
+          {installEvt && !installed && (
             <button
               type="button"
               onClick={() => {
                 installEvt.prompt();
                 installEvt.userChoice.finally(() => setInstallEvt(null));
               }}
-              className="press rounded-full bg-accent-soft px-4 py-1.5 text-2xs font-semibold text-accent-strong"
+              className="press rounded-full bg-accent-soft px-4 py-2 text-2xs font-semibold text-accent-strong"
             >
-              Install
+              Install app
             </button>
-          </div>
-        )}
-
-        <div className="safe-bottom flex items-center justify-center gap-1 px-5 pb-3 text-2xs text-ink-muted/70">
-          Made by <span className="font-medium text-ink-soft">{AUTHOR_NAME}</span>
+          )}
         </div>
       </main>
 
@@ -678,7 +661,15 @@ export function GameScreen() {
         }}
         onStart={startGame}
       />
-      <SettingsSheet open={showSettings} onClose={() => setShowSettings(false)} />
+      <SettingsSheet
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        canInstall={!!installEvt && !installed}
+        onInstall={() => {
+          installEvt?.prompt();
+          installEvt?.userChoice.finally(() => setInstallEvt(null));
+        }}
+      />
       <StatsSheet open={showStats} onClose={() => setShowStats(false)} />
       <HelpSheet open={showHelp} onClose={() => setShowHelp(false)} />
       <CommandPalette open={showCommand} onClose={() => setShowCommand(false)} commands={commands} />

@@ -55,7 +55,7 @@ export function ContourField({ className = "", size = 760 }: { className?: strin
       aria-hidden
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid slice"
-      className={`pointer-events-none absolute inset-0 size-full text-line ${className}`}
+      className={`animate-contour pointer-events-none absolute inset-0 size-full text-line ${className}`}
       style={size ? { width: size, height: size } : undefined}
     >
       {rings.map((r, i) => (

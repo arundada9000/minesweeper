@@ -1,6 +1,7 @@
 import { allPosts } from "@/lib/posts";
 import { ArticleCard } from "@/components/content/ArticleCard";
 import { AdSlot } from "@/components/site/AdSlot";
+import { Reveal } from "@/components/site/Reveal";
 import { ContourField } from "@/components/site/map";
 
 export const metadata = {
@@ -19,31 +20,35 @@ export default function BlogIndexPage() {
           <ContourField size={420} />
         </div>
 
-        <div className="mb-10 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
-          <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-2">
-            1
-          </span>
-          Field notes
-        </div>
+        <Reveal onMount>
+          <div className="mb-10 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
+            <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-2">
+              1
+            </span>
+            Field notes
+          </div>
 
-        <h1 className="relative font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-          Minesweeper guides
-        </h1>
-        <p className="relative mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
-          Sixteen field notes on rules, patterns, scoring, modes, and history. Every guide is
-          written against the real game and points you at a board to practice on.
-        </p>
+          <h1 className="relative font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+            Minesweeper guides
+          </h1>
+          <p className="relative mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">
+            Sixteen field notes on rules, patterns, scoring, modes, and history. Every guide is
+            written against the real game and points you at a board to practice on.
+          </p>
+        </Reveal>
       </div>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post, i) => (
-          <ArticleCard key={post.slug} post={post} index={i} />
+          <Reveal key={post.slug} delay={(i % 3) * 0.06} className="h-full">
+            <ArticleCard post={post} index={i} />
+          </Reveal>
         ))}
       </div>
 
-      <div className="mt-16">
+      <Reveal y={14} className="mt-16">
         <AdSlot variant="leaderboard" />
-      </div>
+      </Reveal>
     </div>
   );
 }

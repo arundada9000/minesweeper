@@ -120,6 +120,100 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function ChevronUpIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m6 15 6-6 6 6" />
+    </svg>
+  );
+}
+
+export function ArrowUpIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 20V4M5 11.5 12 4l7 7.5" />
+    </svg>
+  );
+}
+
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 12h16M13 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+export function ArrowUpRightIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
+
+export function DownloadIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3v12M7 10l5 5 5-5M4 21h16" />
+    </svg>
+  );
+}
+
+export function GitHubIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 19c-4 1.2-4-2-6-2.5M15 21v-3.2a3.1 3.1 0 0 0-.9-2.4c3-.3 6.2-1.5 6.2-6.7a5.2 5.2 0 0 0-1.4-3.6 4.8 4.8 0 0 0-.1-3.6s-1.1-.4-3.7 1.4a12.7 12.7 0 0 0-6.7 0C6.6 3.1 5.5 3.5 5.5 3.5a4.8 4.8 0 0 0-.1 3.6A5.2 5.2 0 0 0 4 10.7c0 5.2 3.2 6.4 6.2 6.7a3.1 3.1 0 0 0-.9 2.4V21" />
+    </svg>
+  );
+}
+
+export function LinkedInIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V9h4v1.5A6 6 0 0 1 16 8Z" />
+      <rect x="2" y="9" width="4" height="12" rx="1" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+export function XIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 4l16 16M20 4 4 20" />
+    </svg>
+  );
+}
+
+export function InstagramIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+      <circle cx="12" cy="12" r="4.25" />
+      <path d="M17.25 6.75h.01" />
+    </svg>
+  );
+}
+
+export function YouTubeIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2" y="5.5" width="20" height="13" rx="3.5" />
+      <path d="m10.25 9.5 5 2.5-5 2.5v-5Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function WhatsAppIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3.25 20.75 4.9 16a8.75 8.75 0 1 1 3.1 3.1l-4.75 1.65Z" />
+      <path d="M9.4 8.4c.2 3 2.8 5.6 5.8 5.8l1.3-2.3-1.7-.9-.9.6a4.7 4.7 0 0 1-2.9-2.9l.6-.9-.9-1.7-2.3 1.3Z" />
+    </svg>
+  );
+}
+
 export function ZapIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

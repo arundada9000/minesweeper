@@ -48,6 +48,7 @@
   /* ---------- Elevation ---------- */
   --z-base: 0;
   --z-sticky: 20;
+  --z-header: 70;
   --z-overlay: 60;
   --z-modal: 80;
   --z-context: 90;

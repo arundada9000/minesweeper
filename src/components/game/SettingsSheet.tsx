@@ -16,7 +16,7 @@ import {
   type ThemePreference,
 } from "@/game/useSettingsStore";
 import { playSound, haptic } from "@/game/sound";
-import { MoonIcon, SunIcon } from "../ui/icons";
+import { DownloadIcon, MoonIcon, SunIcon } from "../ui/icons";
 import type { ReactNode } from "react";
 
 const THEME_LABELS: Record<string, string> = {
@@ -70,9 +70,11 @@ const MOTION_OPTIONS: readonly SegmentedOption<MotionPreference>[] = [
 interface SettingsSheetProps {
   open: boolean;
   onClose: () => void;
+  canInstall?: boolean;
+  onInstall?: () => void;
 }
 
-export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
+export function SettingsSheet({ open, onClose, canInstall, onInstall }: SettingsSheetProps) {
   const s = useSettings();
   const set = (patch: Parameters<typeof s.set>[0]) => {
     s.set(patch);
@@ -180,6 +182,24 @@ export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
           />
         </div>
       </Section>
+
+      {canInstall && onInstall && (
+        <Section label="Install">
+          <button
+            type="button"
+            onClick={onInstall}
+            className="press flex w-full items-center gap-3 rounded-2xl bg-accent-soft px-4 py-3 text-left transition-colors hover:bg-accent-soft"
+          >
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-on-accent">
+              <DownloadIcon size={18} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-ink">Install the app</span>
+              <span className="block text-xs text-ink-muted">Keeps playing offline, one tap away</span>
+            </span>
+          </button>
+        </Section>
+      )}
 
       <Section label="About">
         <div className="flex items-center gap-3 rounded-2xl bg-surface-2 px-4 py-3">

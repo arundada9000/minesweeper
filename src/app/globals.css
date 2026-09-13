@@ -108,6 +108,7 @@
 
   /* z-index */
   --z-sticky: var(--z-sticky);
+  --z-header: var(--z-header);
   --z-overlay: var(--z-overlay);
   --z-modal: var(--z-modal);
   --z-context: var(--z-context);
@@ -450,6 +451,53 @@
 
 .pulse-soft {
   animation: pulse-soft 1.1s ease-in-out infinite;
+}
+
+/* ---------- Landing delight ---------- */
+
+@keyframes header-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-header-in {
+  animation: header-in 460ms var(--ease-touch) both;
+}
+
+@keyframes contour-drift {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.04) rotate(1.5deg);
+  }
+}
+
+.animate-contour {
+  animation: contour-drift 42s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes cell-peek {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.cell-peek {
+  animation: cell-peek 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ---------- Reduced motion ---------- */

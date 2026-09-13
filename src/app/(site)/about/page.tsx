@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE_URL, SITE_TAGLINE } from "@/lib/site";
+import { Reveal } from "@/components/site/Reveal";
 import { MineIcon, PlayIcon } from "@/components/ui/icons";
 import type { Metadata } from "next";
 
@@ -13,14 +14,17 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-5 pb-24 pt-12 sm:px-6">
-      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
-        <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-4">4</span>
-        About
-      </div>
+      <Reveal onMount>
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
+          <span className="grid size-3.5 place-items-center rounded-[3px] border border-line bg-cell-revealed text-[9px] font-bold text-num-4">4</span>
+          About
+        </div>
 
-      <h1 className="font-display text-4xl font-bold tracking-tight text-ink">Think clearly. Clear everything.</h1>
+        <h1 className="font-display text-4xl font-bold tracking-tight text-ink">Think clearly. Clear everything.</h1>
+      </Reveal>
 
-      <div className="mt-8 space-y-6 text-[15px] leading-7 text-ink-soft">
+      <Reveal y={16} className="mt-8">
+        <div className="space-y-6 text-[15px] leading-7 text-ink-soft">
         <p className="text-lg leading-relaxed text-ink-soft">
           Easy Minesweeper is a minesweeper with a quiet philosophy: the puzzle should teach you,
           not punish you. It runs entirely in your browser, works fully offline once loaded, and
@@ -60,7 +64,7 @@ export default function AboutPage() {
       <div className="mt-12 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/play"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-on-accent shadow-ios transition-opacity hover:opacity-90"
+          className="press inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-on-accent shadow-ios hover:opacity-90"
         >
           <PlayIcon size={16} />
           Play the game
@@ -73,6 +77,7 @@ export default function AboutPage() {
           Read the guides
         </Link>
       </div>
+      </Reveal>
     </div>
   );
 }
