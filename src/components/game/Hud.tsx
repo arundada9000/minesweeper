@@ -5,8 +5,9 @@
 
 import { useGame } from "@/game/useGameStore";
 import { getMode } from "@/engine/modes";
+import type { GameEngine } from "@/engine/game";
 import { formatClock } from "../ui/primitives";
-import { ClockIcon, MineIcon, RestartIcon, UndoIcon } from "../ui/icons";
+import { ClockIcon, FlagIcon, GridIcon, MineIcon, QuestionIcon, RestartIcon, UndoIcon } from "../ui/icons";
 
 const PHASE_TINT: Record<string, string> = {
   ready: "text-ink-soft",
@@ -16,6 +17,44 @@ const PHASE_TINT: Record<string, string> = {
   lost: "text-red",
   idle: "text-ink-muted",
 };
+
+function RunStats({ engine }: { engine: GameEngine }) {
+  const cfg = engine.config;
+  const totalCells = cfg.width * cfg.height;
+  const safeCells = totalCells - cfg.mineCount;
+  const uncovered = engine.revealedSafeCount;
+  const left = Math.max(0, safeCells - uncovered);
+  const progress = safeCells > 0 ? uncovered / safeCells : 0;
+
+  return (
+    <div role="group" aria-label="Run progress" className="grid grid-cols-3 items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md">
+      <div className="flex flex-col items-center justify-center gap-0.5 rounded-xl bg-elevated px-2 py-1.5">
+        <div className="flex items-baseline gap-1.5">
+          <FlagIcon size={13} className="text-flag" />
+          <span className="font-mono text-base font-bold tabular text-ink">{engine.flagsPlaced}</span>
+        </div>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Flags</span>
+      </div>
+      <div className="flex flex-col items-center justify-center gap-0.5 rounded-xl bg-elevated px-2 py-1.5">
+        <div className="flex items-baseline gap-1.5">
+          <GridIcon size={13} className="text-accent" />
+          <span className="font-mono text-base font-bold tabular text-ink">{uncovered}</span>
+        </div>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Discovered</span>
+      </div>
+      <div className="flex flex-col items-center justify-center gap-0.5 rounded-xl bg-elevated px-2 py-1.5">
+        <div className="flex items-baseline gap-1.5">
+          <QuestionIcon size={13} className="text-ink-soft" />
+          <span className="font-mono text-base font-bold tabular text-ink">{left}</span>
+        </div>
+        <span className="text-2xs uppercase tracking-wide text-ink-muted">Left</span>
+      </div>
+      <div className="col-span-3 h-0.5 overflow-hidden rounded-full bg-track" role="presentation">
+        <div className="h-full rounded-full bg-accent transition-[width] duration-300 ease-out" style={{ width: `${progress * 100}%` }} />
+      </div>
+    </div>
+  );
+}
 
 export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => void; onUndo: () => void; onRestart: () => void }) {
   useGame((s) => s.clockVersion);
@@ -39,8 +78,9 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
   const modeLabel = mode === "daily" ? "Today" : preset === "custom" ? `${cfg.width}×${cfg.height}` : preset;
 
   return (
-    <div className="mx-5 flex items-stretch gap-1">
-      <div className="grid flex-1 grid-cols-[1fr_auto_1fr] items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md">
+    <div className="mx-5 flex flex-col gap-1.5">
+      <div className="flex items-stretch gap-1">
+        <div className="grid flex-1 grid-cols-[1fr_auto_1fr] items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md">
         <div className="flex items-center justify-start gap-1.5 rounded-xl bg-elevated px-3" aria-label={`${minesLeft} mines left`}>
           <MineIcon size={15} className="text-accent" />
           <span className="font-mono text-lg font-bold tabular text-ink">{String(minesLeft).padStart(3, "0")}</span>
@@ -91,6 +131,9 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
         <span className={`size-2 rounded-full bg-current ${PHASE_TINT[engine.phase] ?? "text-ink-muted"}`} />
         <span className="font-medium">{modeLabel}</span>
       </button>
+      </div>
+
+      <RunStats engine={engine} />
     </div>
   );
 }

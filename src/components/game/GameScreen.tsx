@@ -427,7 +427,7 @@ export function GameScreen() {
       <div className="no-select flex h-dvh flex-col bg-canvas">
       <header className="safe-top flex items-center justify-between px-5 pt-2.5">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-lg font-bold tracking-tight text-ink">SweeperMine</h1>
+          <h1 className="text-lg font-bold tracking-tight text-ink font-display">SweeperMine</h1>
           <span className="hidden text-2xs uppercase tracking-widest text-ink-muted sm:block">{modeLabel} / {presetLabel}</span>
         </div>
         <div className="flex items-center gap-1">
