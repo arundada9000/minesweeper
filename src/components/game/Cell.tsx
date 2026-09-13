@@ -28,9 +28,11 @@ interface CellProps {
   isNew: boolean;
   revealOrder: number;
   isCursor: boolean;
+  /** Tier of the active teaching hint this cell belongs to, if any. */
+  hintRole?: "action" | "clue" | "area";
 }
 
-export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCursor }: CellProps) {
+export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCursor, hintRole }: CellProps) {
   // Subscribe to a signature of this cell only; unrelated cells stay inert.
   useGame((s) => {
     const c = s.engine.cells[index];
@@ -131,14 +133,15 @@ export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCurs
   // Hidden cells get a pressed affordance; revealed cells stay flat.
   const pressedClass = !revealed && !exploded && pressed ? "bg-cell-pressed" : "";
   const liveClass = !revealed && !exploded ? "cell-live" : "";
+  const hintClass = hintRole === "action" ? "hint-action" : hintRole === "clue" ? "hint-clue" : hintRole === "area" ? "hint-area" : "";
 
   return (
     <button
       type="button"
       aria-label={label}
-      className={`cell-surface ${surfaceClass} ${pressedClass} ${liveClass} no-select ${isNew ? "cell-new" : ""} ${
+      className={`cell-surface ${surfaceClass} ${pressedClass} ${liveClass} no-select ${revealed && number > 0 ? "cursor-pointer" : ""} ${isNew ? "cell-new" : ""} ${
         wrongFlag ? "cell-shake" : ""
-      } ${isCursor ? "cursor-cell ring-2 ring-accent-strong/70" : ""}`}
+      } ${hintClass} ${isCursor ? "cursor-cell ring-2 ring-accent-strong/70" : ""}`}
       style={isNew ? { animationDelay: `${Math.min(10, revealOrder) * 14}ms` } : undefined}
       {...bind}
     >

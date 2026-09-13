@@ -333,3 +333,13 @@ export function GraduationIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function LightbulbIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9.5 18.5h5" />
+      <path d="M12 2.75a6.25 6.25 0 0 1 4 11.05c-.7.6-1 1.5-1 2.2h-6c0-.7-.3-1.6-1-2.2a6.25 6.25 0 0 1 4-11.05Z" />
+      <path d="M9.5 21h5" />
+    </svg>
+  );
+}

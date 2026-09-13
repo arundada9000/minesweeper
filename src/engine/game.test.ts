@@ -279,3 +279,61 @@ describe("GameEngine lifecycle", () => {
     expect(engine.flagsPlaced).toBe(1);
   });
 });
+
+describe("solver hints", () => {
+  it("are unavailable before the board exists or once finished", () => {
+    const engine = new GameEngine(makeConfig());
+    expect(engine.canHint).toBe(false);
+    expect(engine.hint()).toBeNull();
+    engine.reveal(CENTER);
+    expect(engine.canHint).toBe(true);
+    expect(engine.hint()).not.toBeNull();
+    const mine = engine.cells.find((c) => c.isMine && c.state === "hidden")!;
+    engine.reveal(mine.index);
+    expect(engine.phase).toBe("lost");
+    expect(engine.canHint).toBe(false);
+    expect(engine.hint()).toBeNull();
+  });
+
+  it("count every hint, survive undo and hydration, and reset on restart", () => {
+    const engine = new GameEngine(makeConfig());
+    engine.reveal(CENTER);
+    expect(engine.hintsUsed).toBe(0);
+    engine.hint();
+    engine.hint();
+    expect(engine.hintsUsed).toBe(2);
+    expect(engine.undo()).toBe(true);
+    expect(engine.hintsUsed).toBe(2);
+
+    const restored = new GameEngine(makeConfig());
+    restored.hydrate(engine.serialize());
+    expect(restored.hintsUsed).toBe(2);
+
+    engine.restart();
+    expect(engine.hintsUsed).toBe(0);
+  });
+
+  it("is always safe to apply: revealed cells are never mines", () => {
+    const engine = new GameEngine(makeConfig());
+    engine.reveal(CENTER);
+    const hint = engine.hint();
+    expect(hint).not.toBeNull();
+    for (const index of hint!.actionCells) {
+      const cell = engine.cells[index];
+      if (cell.state === "flagged" || cell.state === "exploded") continue;
+      if (hint!.action === "flag") {
+        if (cell.state === "hidden") engine.cycleFlag(index);
+        else if (cell.state === "questioned") {
+          engine.cycleFlag(index);
+          engine.cycleFlag(index);
+        }
+      } else {
+        expect(cell.isMine).toBe(false);
+        if (cell.state !== "revealed") {
+          const result = engine.reveal(index);
+          expect(result?.explodedMine).toBe(null);
+        }
+      }
+    }
+  });
+});

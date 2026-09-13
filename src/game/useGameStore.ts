@@ -8,6 +8,7 @@ import { create } from "zustand";
 import { GameEngine, randomSeed, dailySeed } from "@/engine";
 import type { BoardConfig, ModeId } from "@/engine";
 import { getMode } from "@/engine/modes";
+import type { HintResult } from "@/engine/hints";
 import {
   getPreset,
   DAILY_PRESET,
@@ -147,6 +148,8 @@ interface GameStore {
   /** Indices disclosed by the last reveal/chord, for stagger animation. */
   lastReveal: readonly number[];
   hasSavedRun: boolean;
+  /** Active teaching hint (cells to highlight), null when none is open. */
+  hint: HintResult | null;
 
   newGame: (mode?: ModeId, preset?: PresetId, custom?: CustomBoardSpec) => void;
   restart: () => void;
@@ -157,6 +160,9 @@ interface GameStore {
   cycleFlag: (index: number) => void;
   unflag: (index: number) => void;
   undo: () => void;
+  askHint: () => void;
+  applyHint: () => void;
+  clearHint: () => void;
   pause: () => void;
   resume: () => void;
   tick: (deltaMs: number) => void;
@@ -196,6 +202,7 @@ export const useGame = create<GameStore>()((set, get) => {
     boardVersion: 0,
     lastReveal: [],
     hasSavedRun: loadSavedRun() !== null,
+    hint: null,
 
     newGame: (mode = get().mode, preset = get().preset, custom = get().custom) => {
       clearSavedRun();
@@ -213,6 +220,7 @@ export const useGame = create<GameStore>()((set, get) => {
         boardVersion: 0,
         lastReveal: [],
         hasSavedRun: false,
+        hint: null,
       });
     },
 
@@ -220,7 +228,7 @@ export const useGame = create<GameStore>()((set, get) => {
       const { engine, mode, preset, custom } = get();
       prevSignature = signatureOf(engine);
       engine.restart();
-      set({ lastReveal: [], boardVersion: get().boardVersion + 1 });
+      set({ lastReveal: [], boardVersion: get().boardVersion + 1, hint: null });
     },
 
     continueSaved: () => {
@@ -242,6 +250,7 @@ export const useGame = create<GameStore>()((set, get) => {
         boardVersion: 0,
         lastReveal: [],
         hasSavedRun: false,
+        hint: null,
       });
     },
 
@@ -280,9 +289,45 @@ export const useGame = create<GameStore>()((set, get) => {
       const { engine, mode, preset, custom } = get();
       if (!getMode(mode).undoAllowed) return;
       if (engine.undo()) {
-        set({ lastReveal: [] });
+        set({ lastReveal: [], hint: null });
         sync(engine, mode, preset, custom);
       }
+    },
+
+    askHint: () => {
+      const { engine, mode, preset, custom } = get();
+      if (!getMode(mode).hintsAllowed) return;
+      const hint = engine.hint();
+      if (hint) {
+        set({ hint });
+        sync(engine, mode, preset, custom);
+      }
+    },
+
+    applyHint: () => {
+      const { engine, mode, preset, custom } = get();
+      const hint = get().hint;
+      if (!hint || !engine.canHint) return;
+      for (const index of hint.actionCells) {
+        const cell = engine.cells[index];
+        if (!cell || cell.state === "flagged" || cell.state === "exploded") continue;
+        if (hint.action === "flag") {
+          if (cell.state === "hidden") engine.cycleFlag(index);
+          else if (cell.state === "questioned") {
+            engine.cycleFlag(index);
+            engine.cycleFlag(index);
+          }
+        } else {
+          const result = engine.reveal(index);
+          if (result) set({ lastReveal: result.revealed });
+        }
+      }
+      set({ hint: null });
+      sync(engine, mode, preset, custom);
+    },
+
+    clearHint: () => {
+      set({ hint: null });
     },
 
     pause: () => {

@@ -27,6 +27,7 @@ function outcome(partial: Partial<RunOutcome> = {}): RunOutcome {
     cellsRevealed: 60,
     flagsPlaced: 4,
     wrongFlags: 0,
+    hintsUsed: 0,
     score: null,
     date: "2026-09-13",
     ...partial,
@@ -231,6 +232,32 @@ describe("recent games", () => {
     }
     expect(state.recent).toHaveLength(20);
     expect(state.recent[0].timeMs).toBe(24);
+  });
+});
+
+describe("hintsUsed gating", () => {
+  it("keeps totals and achievements but never sets a personal record", () => {
+    const setup = empty();
+    const first = recordRun(setup, outcome({ hintsUsed: 1, won: true, flagsPlaced: 0, timeMs: 30_000 }));
+    const s = first.stats[statsKey("classic", "beginner")]!;
+    expect(s.gamesPlayed).toBe(1);
+    expect(s.gamesWon).toBe(1);
+    expect(s.bestTimeMs).toBeNull();
+    expect(first.recordBeaten).toBe(false);
+    expect(first.unlocked).toContain("no-flagger"); // achievements still count
+
+    const second = recordRun({ ...setup, stats: first.stats, achievements: first.achievements, daily: first.daily, recent: first.recent }, outcome({ won: true, timeMs: 60_000 }));
+    const s2 = second.stats[statsKey("classic", "beginner")]!;
+    expect(s2.bestTimeMs).toBe(60_000);
+    expect(s2.bestWinStreak).toBe(2);
+  });
+
+  it("rush totals keep accumulating while bestScore is skipped", () => {
+    const result = recordRun(empty(), outcome({ hintsUsed: 1, mode: "rush", score: 1600, won: true }));
+    const s = result.stats[statsKey("rush", "beginner")]!;
+    expect(s.gamesWon).toBe(1);
+    expect(s.totalScore).toBe(1600);
+    expect(s.bestScore).toBeNull();
   });
 });
 

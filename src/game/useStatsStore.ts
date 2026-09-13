@@ -82,6 +82,7 @@ export const useStats = create<StatsState>()((set, get) => ({
       cellsRevealed: engine.revealedSafeCount,
       flagsPlaced: engine.flagsPlaced,
       wrongFlags,
+      hintsUsed: engine.hintsUsed,
       score,
       date: localDateStamp(),
     };

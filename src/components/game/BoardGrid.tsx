@@ -5,7 +5,7 @@
  * overflow the scroll window, per the design rules.
  */
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useGame } from "@/game/useGameStore";
 import { playSound, haptic } from "@/game/sound";
@@ -23,11 +23,21 @@ function gapFor(cell: number): number {
 }
 
 export function BoardGrid({ cursor }: { cursor: number | null }) {
-  const { cols, rows, version, lastReveal } = useGame(
-    useShallow((s) => ({ cols: s.cols, rows: s.rows, version: s.boardVersion, lastReveal: s.lastReveal }))
+  const { cols, rows, version, lastReveal, hint } = useGame(
+    useShallow((s) => ({
+      cols: s.cols,
+      rows: s.rows,
+      version: s.boardVersion,
+      lastReveal: s.lastReveal,
+      hint: s.hint,
+    }))
   );
   const engine = useGame.getState().engine;
   const cells = engine.cells;
+
+  const hintAction = useMemo(() => new Set(hint?.actionCells ?? []), [hint]);
+  const hintClue = useMemo(() => new Set(hint?.clueCells ?? []), [hint]);
+  const hintArea = useMemo(() => new Set(hint?.areaCells ?? []), [hint]);
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ cell: 44, gap: 3 });
@@ -96,7 +106,15 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
         style={{ "--mines-cols": cols, "--mines-rows": rows, "--cell-w": `${dims.cell}px`, "--cell-gap": `${dims.gap}px`, "--cell-radius": "var(--radius-sm)" } as CSSProperties}
       >
         {cells.map((cell, i) => (
-          <Cell key={cell.index} index={cell.index} cols={cols} isNew={lastReveal.includes(cell.index)} revealOrder={lastReveal.indexOf(cell.index)} isCursor={cursor === cell.index} />
+          <Cell
+            key={cell.index}
+            index={cell.index}
+            cols={cols}
+            isNew={lastReveal.includes(cell.index)}
+            revealOrder={lastReveal.indexOf(cell.index)}
+            isCursor={cursor === cell.index}
+            hintRole={hintAction.has(cell.index) ? "action" : hintClue.has(cell.index) ? "clue" : hintArea.has(cell.index) ? "area" : undefined}
+          />
         ))}
       </div>
       </div>

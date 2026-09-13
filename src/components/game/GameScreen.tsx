@@ -32,6 +32,7 @@ import {
   SpeakerIcon,
   SpeakerOffIcon,
   VibrateIcon,
+  LightbulbIcon,
 } from "../ui/icons";
 import { CommandPalette, type Command } from "../ui/CommandPalette";
 import { ContextMenuLayer, useContextMenu, type MenuItem } from "../ui/ContextMenu";
@@ -39,6 +40,7 @@ import { ToastViewport, toast } from "../ui/Toasts";
 import { Tooltip } from "../ui/primitives";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
+import { HintBanner } from "./HintBanner";
 import { ContinueOverlay, PauseOverlay, ResultOverlay } from "./Overlays";
 import { OnboardingOverlay } from "./OnboardingOverlay";
 import { ModeSelect } from "./ModeSelect";
@@ -63,6 +65,7 @@ export function GameScreen() {
 
   const phase = useGame((s) => s.engine.phase);
   useGame((s) => s.clockVersion);
+  const hint = useGame((s) => s.hint);
 
   const engine = useGame.getState().engine;
   const mode = useGame.getState().mode;
@@ -268,6 +271,21 @@ export function GameScreen() {
           toast("Board restarted");
         },
       },
+      ...(getMode(mode).hintsAllowed
+        ? [
+            {
+              id: "hint",
+              group: "Game",
+              label: "Get a hint",
+              keywords: "teach help solver tip",
+              icon: <LightbulbIcon size={15} />,
+              onRun: () => {
+                playSound("click");
+                useGame.getState().askHint();
+              },
+            },
+          ]
+        : []),
       paused
         ? {
             id: "resume",
@@ -369,6 +387,12 @@ export function GameScreen() {
         case "z":
           if (store.engine.canUndo) store.undo();
           return;
+        case "h":
+          if (getMode(store.mode).hintsAllowed && store.engine.canHint) {
+            playSound("click");
+            store.askHint();
+          }
+          return;
         case "r":
           playSound("newgame");
           store.restart();
@@ -389,6 +413,7 @@ export function GameScreen() {
 
   useEffect(() => {
     if (phase === "won" || phase === "lost") {
+      useGame.getState().clearHint();
       const store = useGame.getState();
       const outcome = useStats.getState().outcomeFor(store.engine, store.mode, store.preset);
       const notice = useStats.getState().recordFinished(outcome);
@@ -425,6 +450,7 @@ export function GameScreen() {
     : Math.round(engine.elapsedMs / 1000);
   const timeUp = lost && engine.reason === "Time's up.";
   const showUndoHint = modeDef.undoAllowed;
+  const showHintKbd = modeDef.hintsAllowed;
 
   return (
     <MotionConfig reducedMotion="user">
@@ -488,7 +514,12 @@ export function GameScreen() {
       </header>
 
       <main className="mt-2 flex min-h-0 flex-1 flex-col">
-        <Hud onModeClick={() => setShowMode(true)} onUndo={() => useGame.getState().undo()} onRestart={() => useGame.getState().restart()} />
+        <Hud
+          onModeClick={() => setShowMode(true)}
+          onUndo={() => useGame.getState().undo()}
+          onRestart={() => useGame.getState().restart()}
+          onHint={() => useGame.getState().askHint()}
+        />
 
         <div className="relative mb-3 mt-3 min-h-0 flex-1 px-2">
           <div className="game-canvas absolute inset-0" onContextMenu={openBoardMenu}>
@@ -496,6 +527,7 @@ export function GameScreen() {
           </div>
 
           <AnimatePresence>
+            {hint && <HintBanner key="hint" />}
             {continuePrompt && !finished && !hasBoard && (
               <ContinueOverlay
                 key="continue"
@@ -563,11 +595,11 @@ export function GameScreen() {
           <KeyboardIcon size={13} />
           {mode !== "zen" ? (
             <span className="hidden sm:inline">
-              Arrows move / Space reveals / F flags {showUndoHint ? "/ Z undoes" : ""} / R restarts / P pauses
+              Arrows move / Space reveals / F flags {showUndoHint ? "/ Z undoes" : ""} {showHintKbd ? "/ H hints" : ""} / R restarts / P pauses
             </span>
           ) : (
             <span className="hidden sm:inline">
-              Arrows move / Space reveals / F flags / R restarts / Z undoes
+              Arrows move / Space reveals / F flags / R restarts {showUndoHint ? "/ Z undoes" : ""} {showHintKbd ? "/ H hints" : ""}
             </span>
           )}
           <span className="sm:hidden">Tap to reveal / Hold to flag / Double-tap to clear around a number</span>

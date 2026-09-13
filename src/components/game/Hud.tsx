@@ -7,7 +7,7 @@ import { useGame } from "@/game/useGameStore";
 import { getMode } from "@/engine/modes";
 import type { GameEngine } from "@/engine/game";
 import { formatClock } from "../ui/primitives";
-import { ClockIcon, FlagIcon, GridIcon, MineIcon, QuestionIcon, RestartIcon, UndoIcon } from "../ui/icons";
+import { ClockIcon, FlagIcon, GridIcon, LightbulbIcon, MineIcon, QuestionIcon, RestartIcon, UndoIcon } from "../ui/icons";
 
 const PHASE_TINT: Record<string, string> = {
   ready: "text-ink-soft",
@@ -84,7 +84,7 @@ function RunStats({ engine }: { engine: GameEngine }) {
   );
 }
 
-export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => void; onUndo: () => void; onRestart: () => void }) {
+export function Hud({ onModeClick, onUndo, onRestart, onHint }: { onModeClick: () => void; onUndo: () => void; onRestart: () => void; onHint: () => void }) {
   useGame((s) => s.clockVersion);
   const engine = useGame.getState().engine;
   const mode = useGame((s) => s.mode);
@@ -97,6 +97,8 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
 
   const modeDef = getMode(mode);
   const undoAllowed = modeDef.undoAllowed;
+  const hintsAllowed = modeDef.hintsAllowed;
+  const hintsUsed = engine.hintsUsed;
 
   const limit = engine.timeLimitMs;
   const countdown = modeDef.timer === "count-down" && limit != null;
@@ -125,6 +127,23 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
               className={`press no-select flex size-10 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-35`}
             >
               <UndoIcon size={19} />
+            </button>
+          )}
+          {hintsAllowed && (
+            <button
+              type="button"
+              aria-label="Get a hint"
+              title="Hint (H)"
+              disabled={!canUndo}
+              onClick={onHint}
+              className={`press no-select relative flex size-10 items-center justify-center rounded-xl bg-elevated shadow-ios text-amber hover:opacity-90 disabled:opacity-35`}
+            >
+              <LightbulbIcon size={18} />
+              {hintsUsed > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber px-1 font-mono text-2xs font-bold tabular text-ink">
+                  {hintsUsed}
+                </span>
+              )}
             </button>
           )}
           <button

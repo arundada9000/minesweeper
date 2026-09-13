@@ -9,6 +9,7 @@
 import { generateBoard, validateConfig, deserializeBoard, neighborCells, BoardConfigError } from "./board";
 import { chordReveal, chordTargets, floodReveal, cycleFlag, type FloodResult } from "./actions";
 import { boardIsLogical, generateNoGuessBoard } from "./solver";
+import { findHint, type HintResult } from "./hints";
 import { createRng } from "./rng";
 import type { Board, BoardConfig, GamePhase } from "./types";
 
@@ -33,6 +34,9 @@ export interface EngineState {
   /** Number of times a flag has been placed this run (prevents undo-cheating
    *  for No-Flagger-style outcomes). */
   flagsPlaced: number;
+  /** Number of solver hints requested this run. Records are suppressed in
+   *  competitive modes once this goes above zero. */
+  hintsUsed: number;
   autoPaused: boolean;
   reason: string | null;
 }
@@ -65,6 +69,7 @@ export class GameEngine {
       moves: 0,
       revealedSafeCount: 0,
       flagsPlaced: 0,
+      hintsUsed: 0,
       autoPaused: false,
       reason: null,
     };
@@ -103,6 +108,15 @@ export class GameEngine {
   /** Flags currently on the board (excludes flags removed by unflag/cycle). */
   get flagsOnBoard(): number {
     return this.countState("flagged");
+  }
+
+  get hintsUsed(): number {
+    return this.state.hintsUsed;
+  }
+
+  /** A hint is only available while a board is mid-play. */
+  get canHint(): boolean {
+    return this.phase === "playing";
   }
 
   /** Countdown budget for Rush; null when the mode is untimed. */
@@ -236,6 +250,20 @@ export class GameEngine {
     this.emit();
   }
 
+  /**
+   * Compute a teaching hint for the current board. Counting as a hint the
+   * moment it is requested keeps competitive runs honest; the returned cells
+   * are safe to apply through reveal()/cycleFlag().
+   */
+  hint(): HintResult | null {
+    if (!this.canHint || !this.board) return null;
+    const result = findHint(this.board, this.config);
+    if (!result) return null;
+    this.setState({ hintsUsed: this.state.hintsUsed + 1 });
+    this.emit();
+    return result;
+  }
+
   /** Undo the last action (reveal, chord, or flag). */
   undo(): boolean {
     if (this.phase !== "playing" || this.snapshot.length === 0) return false;
@@ -264,6 +292,7 @@ export class GameEngine {
       moves: 0,
       revealedSafeCount: 0,
       flagsPlaced: 0,
+      hintsUsed: 0,
       autoPaused: false,
       reason: null,
     };
@@ -314,6 +343,7 @@ export class GameEngine {
       moves: this.state.moves,
       revealedSafeCount: this.state.revealedSafeCount,
       flagsPlaced: this.state.flagsPlaced,
+      hintsUsed: this.state.hintsUsed,
       seq: this.seq,
       board: this.board ? { cells: this.board.cells, width: this.board.width, height: this.board.height, mineCount: this.board.mineCount, safeCount: this.board.safeCount, generatedFor: this.board.generatedFor } : null,
     };
@@ -328,6 +358,7 @@ export class GameEngine {
       moves: number;
       revealedSafeCount: number;
       flagsPlaced?: number;
+      hintsUsed?: number;
       seq: number;
       board: unknown;
     };
@@ -344,6 +375,7 @@ export class GameEngine {
       moves: parsed.moves ?? 0,
       revealedSafeCount: parsed.revealedSafeCount ?? 0,
       flagsPlaced: parsed.flagsPlaced ?? 0,
+      hintsUsed: parsed.hintsUsed ?? 0,
       autoPaused: false,
       reason: parsed.phase === "paused" ? "Paused" : null,
     };

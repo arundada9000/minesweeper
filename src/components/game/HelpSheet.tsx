@@ -50,6 +50,7 @@ export function HelpSheet({ open, onClose }: { open: boolean; onClose: () => voi
             <Row keys="R" label="Restart the board" />
             <Row keys="P / Esc" label="Pause or resume" />
             {def.undoAllowed && <Row keys="Z / U" label="Undo the last move" />}
+            {def.hintsAllowed && <Row keys="H" label="Ask the solver for a hint" />}
             <Row keys="Ctrl + K" label="Command palette" />
             <Row keys="?" label="This help sheet" />
           </div>
@@ -64,6 +65,7 @@ export function HelpSheet({ open, onClose }: { open: boolean; onClose: () => voi
           <Row keys="Tap" label="Reveal a hidden cell" />
           <Row keys="Hold" label="Flag (or cycle flag state)" />
           <Row keys="Double-tap" label="Clear around a revealed number" />
+          {def.hintsAllowed && <Row keys="Hint button" label="Highlight a safe move explained in plain words" />}
         </div>
       </section>
 
@@ -72,6 +74,12 @@ export function HelpSheet({ open, onClose }: { open: boolean; onClose: () => voi
           <span className="font-semibold text-ink">{def.name}:</span> {def.description}
         </p>
         <p>{undoLine}</p>
+        {def.hintsAllowed && (
+          <p>
+            Hints never reveal a mine you could not already prove: they point out a forced move near the revealed
+            numbers, or a careful guess when nothing is forced. Using one skips the personal record in competitive modes.
+          </p>
+        )}
         {!questionAllowed && <p>Question marks are disabled for this mode; the flag cycle skips them.</p>}
       </div>
 

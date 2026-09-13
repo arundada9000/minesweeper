@@ -154,6 +154,9 @@ export interface RunOutcome {
   flagsPlaced: number;
   /** Cells flagged at the end that were not mines. */
   wrongFlags: number;
+  /** Solver hints requested during the run. Competitive runs with any hint
+   *  keep counting toward totals and achievements, but never set a record. */
+  hintsUsed: number;
   /** Rush score for this run, if the mode scores by score. */
   score: number | null;
   /** Result timestamp. */
@@ -205,15 +208,16 @@ export function recordRun(
     if (outcome.wrongFlags === 0) s.perfectGames += 1;
 
     if (competitive) {
-      const prevBest = s.bestTimeMs;
-      if (prevBest === null || outcome.timeMs < prevBest) {
-        s.bestTimeMs = outcome.timeMs;
-        recordBeaten = prevBest !== null;
-      }
       s.totalWinTimeMs += outcome.timeMs;
-      if (outcome.score !== null) {
-        s.totalScore += outcome.score;
-        if (s.bestScore === null || outcome.score > s.bestScore) {
+      if (outcome.score !== null) s.totalScore += outcome.score;
+      // Totals stay honest, but a hint usage disqualifies the personal record.
+      if (outcome.hintsUsed === 0) {
+        const prevBest = s.bestTimeMs;
+        if (prevBest === null || outcome.timeMs < prevBest) {
+          s.bestTimeMs = outcome.timeMs;
+          recordBeaten = prevBest !== null;
+        }
+        if (outcome.score !== null && (s.bestScore === null || outcome.score > s.bestScore)) {
           const fresh = s.bestScore === null;
           s.bestScore = outcome.score;
           if (!fresh) recordBeaten = true;
