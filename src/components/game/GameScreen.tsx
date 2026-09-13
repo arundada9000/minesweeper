@@ -6,7 +6,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionConfig } from "motion/react";
 import { useGame, loadSavedRun, clearSavedRun } from "@/game/useGameStore";
 import { useStats, type FinishedNotice } from "@/game/useStatsStore";
 import { useSettings, applySettingsToDocument, applyMotionMedia } from "@/game/useSettingsStore";
@@ -423,7 +423,8 @@ export function GameScreen() {
   const showUndoHint = modeDef.undoAllowed;
 
   return (
-    <div className="no-select flex h-dvh flex-col bg-canvas">
+    <MotionConfig reducedMotion="user">
+      <div className="no-select flex h-dvh flex-col bg-canvas">
       <header className="safe-top flex items-center justify-between px-5 pt-2.5">
         <div className="flex items-baseline gap-2">
           <h1 className="text-lg font-bold tracking-tight text-ink">SweeperMine</h1>
@@ -584,6 +585,7 @@ export function GameScreen() {
       <CommandPalette open={showCommand} onClose={() => setShowCommand(false)} commands={commands} />
       <ContextMenuLayer />
       <ToastViewport />
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

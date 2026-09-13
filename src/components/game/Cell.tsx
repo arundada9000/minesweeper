@@ -25,10 +25,11 @@ interface CellProps {
   index: number;
   cols: number;
   isNew: boolean;
+  revealOrder: number;
   isCursor: boolean;
 }
 
-export const Cell = memo(function Cell({ index, cols, isNew, isCursor }: CellProps) {
+export const Cell = memo(function Cell({ index, cols, isNew, revealOrder, isCursor }: CellProps) {
   // Subscribe to a signature of this cell only; unrelated cells stay inert.
   useGame((s) => {
     const c = s.engine.cells[index];
@@ -96,7 +97,7 @@ export const Cell = memo(function Cell({ index, cols, isNew, isCursor }: CellPro
   } else if (flagged) {
     surfaceClass = wrongFlag ? "bg-cell-revealed" : "bg-cell";
     content = (
-      <span className="relative flex items-center justify-center">
+      <span className={`relative flex items-center justify-center ${wrongFlag ? "" : "flag-plant"}`}>
         <FlagIcon className="text-flag" />
         {wrongFlag && <CloseIcon className="absolute size-2 text-danger" />}
       </span>
@@ -104,7 +105,7 @@ export const Cell = memo(function Cell({ index, cols, isNew, isCursor }: CellPro
     label = wrongFlag ? "Wrong flag" : "Flagged";
   } else if (questioned) {
     surfaceClass = "bg-cell";
-    content = <QuestionIcon className="text-ink-muted" />;
+    content = <QuestionIcon className="q-in text-ink-muted" />;
     label = "Unknown";
   } else if (revealed) {
     surfaceClass = parity ? "bg-cell-revealed" : "bg-cell-revealed-2";
@@ -118,14 +119,16 @@ export const Cell = memo(function Cell({ index, cols, isNew, isCursor }: CellPro
 
   // Hidden cells get a pressed affordance; revealed cells stay flat.
   const pressedClass = !revealed && !exploded && pressed ? "bg-cell-pressed" : "";
+  const liveClass = !revealed && !exploded ? "cell-live" : "";
 
   return (
     <button
       type="button"
       aria-label={label}
-      className={`cell-surface ${surfaceClass} ${pressedClass} no-select ${isNew ? "cell-new" : ""} ${
-        isCursor ? "cursor-cell ring-2 ring-accent-strong/70" : ""
-      }`}
+      className={`cell-surface ${surfaceClass} ${pressedClass} ${liveClass} no-select ${isNew ? "cell-new" : ""} ${
+        wrongFlag ? "cell-shake" : ""
+      } ${isCursor ? "cursor-cell ring-2 ring-accent-strong/70" : ""}`}
+      style={isNew ? { animationDelay: `${Math.min(10, revealOrder) * 14}ms` } : undefined}
       {...bind}
     >
       {content}

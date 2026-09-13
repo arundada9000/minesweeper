@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useGame } from "@/game/useGameStore";
+import { playSound, haptic } from "@/game/sound";
 import { Cell } from "./Cell";
 
 const MIN_CELL = 34;
@@ -55,7 +56,9 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
   }, [cols, rows]);
 
   if (!cells.length) {
-    // Pre-first-click board: show an inert trace of the grid.
+    // Pre-first-click board: a tappable trace of the grid. Each entry starts
+    // the abandoned-board flow: the engine generates the board and opens at
+    // the tapped cell on the very first reveal.
     return (
       <div ref={scrollerRef} className="mines-scroll h-full w-full overflow-auto rounded-2xl">
         <div
@@ -63,7 +66,17 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
           style={{ "--mines-cols": cols, "--mines-rows": rows, "--cell-w": `${dims.cell}px`, "--cell-gap": `${dims.gap}px`, "--cell-radius": "var(--radius-sm)" } as CSSProperties}
         >
           {Array.from({ length: cols * rows }, (_, i) => (
-            <div key={i} aria-hidden className="cell-surface bg-cell/60" />
+            <button
+              key={i}
+              type="button"
+              aria-label={`Start here (cell ${i + 1})`}
+              onClick={() => {
+                playSound("reveal");
+                haptic("tap");
+                useGame.getState().reveal(i);
+              }}
+              className="cell-surface cell-live no-select bg-cell/60"
+            />
           ))}
         </div>
         <p className="mx-auto mt-1 w-fit rounded-full bg-elevated/80 px-3 py-1 text-sm text-ink-muted backdrop-blur-sm">
@@ -80,7 +93,7 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
         style={{ "--mines-cols": cols, "--mines-rows": rows, "--cell-w": `${dims.cell}px`, "--cell-gap": `${dims.gap}px`, "--cell-radius": "var(--radius-sm)" } as CSSProperties}
       >
         {cells.map((cell, i) => (
-          <Cell key={cell.index} index={cell.index} cols={cols} isNew={lastReveal.includes(cell.index)} isCursor={cursor === cell.index} />
+          <Cell key={cell.index} index={cell.index} cols={cols} isNew={lastReveal.includes(cell.index)} revealOrder={lastReveal.indexOf(cell.index)} isCursor={cursor === cell.index} />
         ))}
       </div>
     </div>

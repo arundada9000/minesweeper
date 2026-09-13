@@ -3,8 +3,8 @@
  * Overlays dim only the board so the HUD and controls stay reachable.
  */
 
-import { AnimatePresence, motion } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { animate, motion, useReducedMotion, type Variants } from "motion/react";
 import { Button, formatClock } from "../ui/primitives";
 import { CheckIcon, ClockIcon, CrownIcon, MineIcon, SparkleIcon } from "../ui/icons";
 
@@ -17,7 +17,15 @@ function Overlay({ children }: { children: ReactNode }) {
       transition={{ duration: 0.16 }}
       className="absolute inset-0 z-overlay flex items-center justify-center p-5"
     >
-      <div className="w-full max-w-sm rounded-3xl bg-elevated p-6 shadow-ios-lg hairline">{children}</div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        transition={{ type: "spring", stiffness: 360, damping: 30 }}
+        className="w-full max-w-sm rounded-3xl bg-elevated p-6 shadow-ios-lg hairline"
+      >
+        {children}
+      </motion.div>
     </motion.div>
   );
 }
@@ -89,6 +97,41 @@ export function PauseOverlay({
 
 /* ------------------------------- ResultOverlay ----------------------------- */
 
+function CountUp({ value, className }: { value: number; className?: string }) {
+  const reduced = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (reduced) {
+      el.textContent = String(value);
+      return;
+    }
+    const controls = animate(0, value, {
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => {
+        el.textContent = String(Math.round(v));
+      },
+    });
+    return () => controls.stop();
+  }, [value, reduced]);
+  return <span ref={ref} className={className} />;
+}
+
+const revealStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.055, delayChildren: 0.06 } },
+};
+const revealItem: Variants = {
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 420, damping: 30 } },
+};
+const badgePop: Variants = {
+  hidden: { opacity: 0, scale: 0.4, rotate: -14 },
+  show: { opacity: 1, scale: 1, rotate: 0, transition: { type: "spring", stiffness: 480, damping: 20 } },
+};
+
 export type ResultStats = "standard" | "rush" | "zen";
 
 export function ResultOverlay({
@@ -131,60 +174,67 @@ export function ResultOverlay({
 
   return (
     <Overlay>
-      <div
-        className={`mb-3 flex size-14 items-center justify-center rounded-full ${won ? "bg-green-soft text-green" : "bg-red-soft text-red"}`}
-      >
-        {won ? <CheckIcon size={26} /> : <MineIcon size={26} />}
-      </div>
-      <h2 className="mb-1 text-xl font-semibold tracking-tight text-ink">{title}</h2>
-      <p className="mb-5 text-sm text-ink-muted">{sub}</p>
+      <motion.div variants={revealStagger} initial="hidden" animate="show">
+        <motion.div
+          variants={badgePop}
+          className={`mb-3 flex size-14 items-center justify-center rounded-full ${won ? "bg-green-soft text-green" : "bg-red-soft text-red"}`}
+        >
+          {won ? <CheckIcon size={26} /> : <MineIcon size={26} />}
+        </motion.div>
+        <motion.h2 variants={revealItem} className="mb-1 text-xl font-semibold tracking-tight text-ink">
+          {title}
+        </motion.h2>
+        <motion.p variants={revealItem} className="mb-5 text-sm text-ink-muted">
+          {sub}
+        </motion.p>
 
-      {stats === "rush" ? (
-        <div className="mb-5 grid grid-cols-3 gap-2 text-center">
-          <Stat label="Score" value={String(score ?? 0)} />
-          <Stat label="Time" value={formatClock(timeMs)} />
-          <Stat label="Cleared" value={String(cleared ?? 0)} />
-        </div>
-      ) : stats === "zen" ? (
-        <div className="mb-5 grid grid-cols-2 gap-2 text-center">
-          <Stat label="Mines" value={String(mines)} />
-          <Stat label="Moves" value={String(moves)} />
-        </div>
-      ) : (
-        <div className="mb-5 grid grid-cols-3 gap-2 text-center">
-          <Stat label="Time" value={formatClock(timeMs)} />
-          <Stat label="Mines" value={String(mines)} />
-          <Stat label="Moves" value={String(moves)} />
-        </div>
-      )}
+        {stats === "rush" ? (
+          <motion.div variants={revealItem} className="mb-5 grid grid-cols-3 gap-2 text-center">
+            <Stat label="Score" value={<CountUp value={score ?? 0} />} />
+            <Stat label="Time" value={formatClock(timeMs)} />
+            <Stat label="Cleared" value={<CountUp value={cleared ?? 0} />} />
+          </motion.div>
+        ) : stats === "zen" ? (
+          <motion.div variants={revealItem} className="mb-5 grid grid-cols-2 gap-2 text-center">
+            <Stat label="Mines" value={<CountUp value={mines} />} />
+            <Stat label="Moves" value={<CountUp value={moves} />} />
+          </motion.div>
+        ) : (
+          <motion.div variants={revealItem} className="mb-5 grid grid-cols-3 gap-2 text-center">
+            <Stat label="Time" value={formatClock(timeMs)} />
+            <Stat label="Mines" value={<CountUp value={mines} />} />
+            <Stat label="Moves" value={<CountUp value={moves} />} />
+          </motion.div>
+        )}
 
-      {(record || unlock) && (
-        <div className="mb-5 flex flex-col gap-1.5">
-          {record && (
-            <div className="flex items-center justify-center gap-1.5 rounded-xl bg-gold-soft px-3 py-2 text-sm font-medium text-gold">
-              <CrownIcon size={15} />
-              New personal best
-            </div>
-          )}
-          {unlock && (
-            <div className="flex items-center justify-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 text-sm font-medium text-accent-strong">
-              <SparkleIcon size={15} />
-              Achievement: {unlock}
-            </div>
-          )}
-        </div>
-      )}
+        {(record || unlock) && (
+          <motion.div variants={revealItem} className="mb-5 flex flex-col gap-1.5">
+            {record && (
+              <div className="flex items-center justify-center gap-1.5 rounded-xl bg-gold-soft px-3 py-2 text-sm font-medium text-gold">
+                <CrownIcon size={15} />
+                New personal best
+              </div>
+            )}
+            {unlock && (
+              <div className="flex items-center justify-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 text-sm font-medium text-accent-strong">
+                <SparkleIcon size={15} />
+                Achievement: {unlock}
+              </div>
+            )}
+          </motion.div>
+        )}
 
-      <div className="flex flex-col gap-2">
-        <Button onClick={onPlayAgain}>{won ? "Play again" : "Try again"}</Button>
-        <Button variant="secondary" onClick={onNewBoard}>New board</Button>
-        <Button variant="ghost" onClick={onClose}>Inspect the board</Button>
-      </div>
+        <motion.div variants={revealItem} className="flex flex-col gap-2">
+          <Button onClick={onPlayAgain}>{won ? "Play again" : "Try again"}</Button>
+          <Button variant="secondary" onClick={onNewBoard}>New board</Button>
+          <Button variant="ghost" onClick={onClose}>Inspect the board</Button>
+        </motion.div>
+      </motion.div>
     </Overlay>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="rounded-xl bg-surface-2 px-2 py-3">
       <div className="font-mono text-lg font-bold tabular text-ink">{value}</div>

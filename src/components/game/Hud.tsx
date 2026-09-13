@@ -76,7 +76,7 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
           </div>
         ) : (
           <div className={`flex items-center justify-end gap-1.5 rounded-xl bg-elevated px-3 ${clockLow ? "text-red" : ""}`} aria-label={countdown ? `Time left ${formatClock(remaining)}` : `Time ${formatClock(time)}`}>
-            <span className={`font-mono text-lg font-bold tabular ${clockLow ? "text-red" : "text-ink"}`}>{formatClock(countdown ? remaining : time)}</span>
+            <span className={`font-mono text-lg font-bold tabular ${clockLow ? "pulse-soft text-red" : "text-ink"}`}>{formatClock(countdown ? remaining : time)}</span>
             <ClockIcon size={15} className={clockLow ? "text-red" : "text-ink-muted"} />
           </div>
         )}

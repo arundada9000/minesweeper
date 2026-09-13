@@ -328,6 +328,87 @@
   animation: mine-burst 0.4s var(--ease-touch) both;
 }
 
+/* ---------- Cell interaction states ---------- */
+.cell-live {
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-touch);
+}
+.cell-live:active {
+  transform: scale(0.92);
+}
+@media (hover: hover) {
+  .game-canvas button.cell-live:not(:disabled):hover {
+    background-color: var(--cell-pressed);
+  }
+}
+
+@keyframes flag-plant {
+  0% {
+    transform: scale(0.3) rotate(-14deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.flag-plant {
+  animation: flag-plant 0.28s var(--ease-touch) both;
+}
+
+@keyframes q-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.q-in {
+  animation: q-in 0.2s var(--ease-touch) both;
+}
+
+@keyframes cell-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+.cell-shake {
+  animation: cell-shake 0.32s var(--ease-touch) both;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 1.1s ease-in-out infinite;
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
