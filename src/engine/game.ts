@@ -30,6 +30,9 @@ export interface EngineState {
   elapsedMs: number;
   moves: number;
   revealedSafeCount: number;
+  /** Number of times a flag has been placed this run (prevents undo-cheating
+   *  for No-Flagger-style outcomes). */
+  flagsPlaced: number;
   autoPaused: boolean;
   reason: string | null;
 }
@@ -40,6 +43,7 @@ interface HistoryEntry {
   elapsedMs: number;
   moves: number;
   revealedSafeCount: number;
+  flagsPlaced: number;
 }
 
 const AUTO_PAUSE_REASON = "You paused because the window lost focus.";
@@ -60,6 +64,7 @@ export class GameEngine {
       elapsedMs: 0,
       moves: 0,
       revealedSafeCount: 0,
+      flagsPlaced: 0,
       autoPaused: false,
       reason: null,
     };
@@ -89,6 +94,10 @@ export class GameEngine {
 
   get moves(): number {
     return this.state.moves;
+  }
+
+  get flagsPlaced(): number {
+    return this.state.flagsPlaced;
   }
 
   /** Countdown budget for Rush; null when the mode is untimed. */
@@ -203,6 +212,9 @@ export class GameEngine {
 
     this.pushSnapshot();
     cycleFlag(this.board!, index, this.config.questionMarks);
+    if (this.board!.cells[index].state === "flagged") {
+      this.setState({ flagsPlaced: this.state.flagsPlaced + 1 });
+    }
     this.setState({ moves: this.state.moves + 1 });
     this.emit();
   }
@@ -230,6 +242,7 @@ export class GameEngine {
       elapsedMs: prev.elapsedMs,
       moves: prev.moves,
       revealedSafeCount: prev.revealedSafeCount,
+      flagsPlaced: prev.flagsPlaced,
     };
     this.emit();
     return true;
@@ -245,6 +258,7 @@ export class GameEngine {
       elapsedMs: 0,
       moves: 0,
       revealedSafeCount: 0,
+      flagsPlaced: 0,
       autoPaused: false,
       reason: null,
     };
@@ -294,6 +308,7 @@ export class GameEngine {
       elapsedMs: this.state.elapsedMs,
       moves: this.state.moves,
       revealedSafeCount: this.state.revealedSafeCount,
+      flagsPlaced: this.state.flagsPlaced,
       seq: this.seq,
       board: this.board ? { cells: this.board.cells, width: this.board.width, height: this.board.height, mineCount: this.board.mineCount, safeCount: this.board.safeCount, generatedFor: this.board.generatedFor } : null,
     };
@@ -307,6 +322,7 @@ export class GameEngine {
       elapsedMs: number;
       moves: number;
       revealedSafeCount: number;
+      flagsPlaced?: number;
       seq: number;
       board: unknown;
     };
@@ -322,6 +338,7 @@ export class GameEngine {
       elapsedMs: parsed.elapsedMs ?? 0,
       moves: parsed.moves ?? 0,
       revealedSafeCount: parsed.revealedSafeCount ?? 0,
+      flagsPlaced: parsed.flagsPlaced ?? 0,
       autoPaused: false,
       reason: parsed.phase === "paused" ? "Paused" : null,
     };
@@ -430,6 +447,7 @@ export class GameEngine {
       elapsedMs: this.state.elapsedMs,
       moves: this.state.moves,
       revealedSafeCount: this.state.revealedSafeCount,
+      flagsPlaced: this.state.flagsPlaced,
     });
   }
 

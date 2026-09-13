@@ -8,28 +8,33 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { useGame, loadSavedRun, clearSavedRun } from "@/game/useGameStore";
+import { useStats, type FinishedNotice } from "@/game/useStatsStore";
 import { useSettings, applySettingsToDocument, applyMotionMedia } from "@/game/useSettingsStore";
 import { playSound, haptic, primeAudio } from "@/game/sound";
 import { getMode } from "@/engine/modes";
 import { getPreset } from "@/engine/presets";
 import type { PresetId, CustomBoardSpec } from "@/engine/presets";
 import type { ModeId } from "@/engine/types";
-import { PauseIcon, SettingsIcon, KeyboardIcon } from "../ui/icons";
+import { PauseIcon, SettingsIcon, KeyboardIcon, TrophyIcon } from "../ui/icons";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
 import { ContinueOverlay, PauseOverlay, ResultOverlay } from "./Overlays";
 import { ModeSelect } from "./ModeSelect";
 import { SettingsSheet } from "./SettingsSheet";
+import { StatsSheet } from "./StatsSheet";
 
 const TICK_INTERVAL_MS = 250;
 const MAX_DT_MS = 1000;
+const EMPTY_NOTICE: FinishedNotice = { recordBeaten: false, unlocked: [], unlockName: null };
 
 export function GameScreen() {
   const [showMode, setShowMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [continuePrompt, setContinuePrompt] = useState(() => loadSavedRun());
   const [cursor, setCursor] = useState<number | null>(null);
+  const [notice, setNotice] = useState<FinishedNotice>(EMPTY_NOTICE);
 
   const phase = useGame((s) => s.engine.phase);
   useGame((s) => s.clockVersion);
@@ -195,6 +200,12 @@ export function GameScreen() {
   /* ------------------------------- settle results ------------------------------ */
 
   useEffect(() => {
+    if (phase === "won" || phase === "lost") {
+      const store = useGame.getState();
+      const outcome = useStats.getState().outcomeFor(store.engine, store.mode, store.preset);
+      const notice = useStats.getState().recordFinished(outcome);
+      setNotice(notice);
+    }
     if (phase === "won") {
       playSound("win");
       haptic("win");
@@ -235,6 +246,17 @@ export function GameScreen() {
           <span className="hidden text-2xs uppercase tracking-widest text-ink-muted sm:block">{modeLabel} / {presetLabel}</span>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label="Records and stats"
+            onClick={() => {
+              primeAudio();
+              setShowStats(true);
+            }}
+            className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
+          >
+            <TrophyIcon size={18} />
+          </button>
           <button
             type="button"
             aria-label="Pause"
@@ -311,6 +333,8 @@ export function GameScreen() {
                 cleared={engine.revealedSafeCount}
                 score={rushScore}
                 timeUp={timeUp}
+                record={notice.recordBeaten}
+                unlock={notice.unlockName}
                 onPlayAgain={() => {
                   playSound("newgame");
                   useGame.getState().restart();
@@ -351,6 +375,7 @@ export function GameScreen() {
         onStart={startGame}
       />
       <SettingsSheet open={showSettings} onClose={() => setShowSettings(false)} />
+      <StatsSheet open={showStats} onClose={() => setShowStats(false)} />
     </div>
   );
 }

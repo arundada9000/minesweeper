@@ -240,4 +240,21 @@ describe("GameEngine lifecycle", () => {
     const untimed = new GameEngine(makeConfig());
     expect(untimed.timeLimitMs).toBeNull();
   });
+
+  it("counts flag placements and restores them on undo", () => {
+    const engine = new GameEngine(makeConfig({ questionMarks: false }));
+    engine.reveal(CENTER);
+    expect(engine.flagsPlaced).toBe(0);
+    engine.cycleFlag(0);
+    expect(engine.flagsPlaced).toBe(1);
+    engine.cycleFlag(0);
+    engine.cycleFlag(0);
+    expect(engine.flagsPlaced).toBe(2);
+    engine.undo();
+    expect(engine.flagsPlaced).toBe(1);
+    engine.undo();
+    expect(engine.flagsPlaced).toBe(1);
+    engine.undo();
+    expect(engine.flagsPlaced).toBe(0);
+  });
 });

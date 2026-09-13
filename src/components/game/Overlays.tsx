@@ -6,7 +6,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { Button, formatClock } from "../ui/primitives";
-import { CheckIcon, ClockIcon, MineIcon } from "../ui/icons";
+import { CheckIcon, ClockIcon, CrownIcon, MineIcon, SparkleIcon } from "../ui/icons";
 
 function Overlay({ children }: { children: ReactNode }) {
   return (
@@ -100,6 +100,8 @@ export function ResultOverlay({
   cleared,
   score,
   timeUp,
+  record,
+  unlock,
   onPlayAgain,
   onNewBoard,
   onClose,
@@ -112,6 +114,8 @@ export function ResultOverlay({
   cleared?: number;
   score?: number;
   timeUp?: boolean;
+  record?: boolean;
+  unlock?: string | null;
   onPlayAgain: () => void;
   onNewBoard: () => void;
   onClose: () => void;
@@ -151,6 +155,23 @@ export function ResultOverlay({
           <Stat label="Time" value={formatClock(timeMs)} />
           <Stat label="Mines" value={String(mines)} />
           <Stat label="Moves" value={String(moves)} />
+        </div>
+      )}
+
+      {(record || unlock) && (
+        <div className="mb-5 flex flex-col gap-1.5">
+          {record && (
+            <div className="flex items-center justify-center gap-1.5 rounded-xl bg-gold-soft px-3 py-2 text-sm font-medium text-gold">
+              <CrownIcon size={15} />
+              New personal best
+            </div>
+          )}
+          {unlock && (
+            <div className="flex items-center justify-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 text-sm font-medium text-accent-strong">
+              <SparkleIcon size={15} />
+              Achievement: {unlock}
+            </div>
+          )}
         </div>
       )}
 
