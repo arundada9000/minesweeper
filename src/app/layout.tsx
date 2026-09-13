@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
-import { GameScreen } from "@/components/game/GameScreen";
 import { inlineTokenScript } from "@/components/game/inlineTokens";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, AUTHOR_NAME, AUTHOR_URL } from "@/lib/site";
 
@@ -50,9 +50,9 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function Home() {
+export default function Home({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="paper" data-accent="auto" data-font="system" data-density="cozy" data-scale="regular">
+    <html lang="en" data-theme="paper" data-accent="auto" data-font="system" data-density="cozy" data-scale="regular" suppressHydrationWarning={true}>
       <head>
         <script
           type="application/ld+json"
@@ -74,7 +74,7 @@ export default function Home() {
       </head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: inlineTokenScript }} />
-        <GameScreen />
+        {children}
       </body>
     </html>
   );
