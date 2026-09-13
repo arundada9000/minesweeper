@@ -5,7 +5,7 @@
  *    - short tap      -> reveal (hidden/questioned) or unflag (flagged)
  *    - long-press     -> flag (hidden) or cycle (flagged/questioned)
  *    - double-tap     -> chord, only on an already-revealed number cell
- *  Right button:       -> cycle flag state (context menu suppressed)
+ *  Right button:       -> flag (per game-logic: right click to flag)
  *  Middle button:      -> chord
  *
  * A finger that drifts beyond the tap slop cancels the action (scroll wins).
@@ -62,7 +62,7 @@ export function useCellGestures(kind: CellGestureKind, events: CellGestureEvents
   };
 
   const onPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    // Right button: cycle flag.
+    // Right button: cycle flag (game-logic: right click -> flag).
     if (e.button === 2) {
       e.preventDefault();
       eventsRef.current.flag();
@@ -160,7 +160,10 @@ export function useCellGestures(kind: CellGestureKind, events: CellGestureEvents
       onPointerUp,
       onPointerCancel,
       onPointerLeave,
-      onContextMenu: (e: ReactPointerEvent<HTMLButtonElement>) => e.preventDefault(),
+      onContextMenu: (e: ReactPointerEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
       onDoubleClick: (e: ReactPointerEvent<HTMLButtonElement>) => e.preventDefault(),
     },
   };

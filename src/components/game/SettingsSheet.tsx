@@ -3,7 +3,7 @@
  * Every option writes a setting and the document re-resolves tokens from it.
  */
 
-import { Sheet, SegmentedControl, Switch, type SegmentedOption } from "../ui/primitives";
+import { Sheet, SegmentedControl, Switch, Slider, type SegmentedOption } from "../ui/primitives";
 import {
   useSettings,
   resolvedAccent,
@@ -155,6 +155,23 @@ export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
         <Row label="Auto-pause" hint="Stop the clock when you leave the tab">
           <Switch checked={s.autoPause} onChange={(v) => set({ autoPause: v })} label="Auto-pause" />
         </Row>
+        <div className="rounded-2xl bg-surface-2 px-3 py-2.5">
+          <div className="mb-1 flex items-baseline justify-between">
+            <div>
+              <div className="text-sm font-medium text-ink">Hold duration</div>
+              <div className="text-2xs text-ink-muted">How long a press flags a cell</div>
+            </div>
+            <span className="tabular text-2xs font-semibold text-ink-soft">{s.longPressDelayMs} ms</span>
+          </div>
+          <Slider
+            label="Hold duration"
+            value={s.longPressDelayMs}
+            min={200}
+            max={900}
+            step={20}
+            onChange={(v) => set({ longPressDelayMs: v })}
+          />
+        </div>
       </Section>
 
       <Section label="About">

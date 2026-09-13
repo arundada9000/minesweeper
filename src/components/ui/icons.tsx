@@ -221,6 +221,55 @@ export function HistoryIcon(props: IconProps) {
   );
 }
 
+export function EyeIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function FlagOffIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 3v18" />
+      <path d="M5 4h13l-2.5 4L18 12H5" />
+      <path d="M4 21l16-18" />
+    </svg>
+  );
+}
+
+export function HelpIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.7 2.2C12.1 11.8 12 12.4 12 13" />
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+
+export function CommandIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 9V6.5A2.5 2.5 0 1 0 6.5 9H9Z" />
+      <path d="M9 9v6H6.5A2.5 2.5 0 0 0 9 17.5V9Z" />
+      <path d="M15 15h2.5a2.5 2.5 0 1 0-2.5-2.5V15Z" />
+      <path d="M15 15V9h2.5A2.5 2.5 0 1 0 15 6.5V15Z" />
+    </svg>
+  );
+}
+
+export function MouseIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="7" y="3" width="10" height="18" rx="5" />
+      <path d="M12 6v3" />
+    </svg>
+  );
+}
+
 export function SunIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

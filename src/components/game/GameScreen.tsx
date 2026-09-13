@@ -5,23 +5,44 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { AnimatePresence } from "motion/react";
 import { useGame, loadSavedRun, clearSavedRun } from "@/game/useGameStore";
 import { useStats, type FinishedNotice } from "@/game/useStatsStore";
 import { useSettings, applySettingsToDocument, applyMotionMedia } from "@/game/useSettingsStore";
 import { playSound, haptic, primeAudio } from "@/game/sound";
-import { getMode } from "@/engine/modes";
+import { getMode, MODE_LIST } from "@/engine/modes";
 import { getPreset } from "@/engine/presets";
 import type { PresetId, CustomBoardSpec } from "@/engine/presets";
 import type { ModeId } from "@/engine/types";
-import { PauseIcon, SettingsIcon, KeyboardIcon, TrophyIcon } from "../ui/icons";
+import {
+  PauseIcon,
+  PlayIcon,
+  SettingsIcon,
+  KeyboardIcon,
+  TrophyIcon,
+  HelpIcon,
+  GridIcon,
+  CalendarIcon,
+  ZapIcon,
+  LeafIcon,
+  CommandIcon,
+  RestartIcon,
+  SpeakerIcon,
+  SpeakerOffIcon,
+  VibrateIcon,
+} from "../ui/icons";
+import { CommandPalette, type Command } from "../ui/CommandPalette";
+import { ContextMenuLayer, useContextMenu, type MenuItem } from "../ui/ContextMenu";
+import { ToastViewport, toast } from "../ui/Toasts";
+import { Tooltip } from "../ui/primitives";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
 import { ContinueOverlay, PauseOverlay, ResultOverlay } from "./Overlays";
 import { ModeSelect } from "./ModeSelect";
 import { SettingsSheet } from "./SettingsSheet";
 import { StatsSheet } from "./StatsSheet";
+import { HelpSheet } from "./HelpSheet";
 
 const TICK_INTERVAL_MS = 250;
 const MAX_DT_MS = 1000;
@@ -31,6 +52,8 @@ export function GameScreen() {
   const [showMode, setShowMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showCommand, setShowCommand] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [continuePrompt, setContinuePrompt] = useState(() => loadSavedRun());
   const [cursor, setCursor] = useState<number | null>(null);
@@ -129,6 +152,155 @@ export function GameScreen() {
     useGame.getState().newGame();
   }, []);
 
+  /* --------------------------------- commands --------------------------------- */
+
+  const startMode = useCallback(
+    (nextMode: ModeId) => {
+      primeAudio();
+      setContinuePrompt(null);
+      setShowResult(false);
+      setCursor(null);
+      useGame.getState().newGame(nextMode);
+      toast(getMode(nextMode).name);
+    },
+    []
+  );
+
+  const openBoardMenu = useCallback(
+    (e: ReactMouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const store = useGame.getState();
+      const items: MenuItem[] = [
+        {
+          id: "new",
+          label: "New game",
+          icon: <PlayIcon size={15} />,
+          onSelect: () => {
+            primeAudio();
+            setShowMode(true);
+          },
+        },
+        {
+          id: "restart",
+          label: "Restart board",
+          icon: <RestartIcon size={15} />,
+          onSelect: () => {
+            playSound("newgame");
+            useGame.getState().restart();
+          },
+        },
+      ];
+      if (store.engine.phase === "paused") {
+        items.splice(2, 0, {
+          id: "resume",
+          label: "Resume game",
+          icon: <PlayIcon size={15} />,
+          onSelect: togglePause,
+        });
+      } else {
+        items.splice(2, 0, {
+          id: "pause",
+          label: "Pause game",
+          icon: <PauseIcon size={15} />,
+          onSelect: togglePause,
+        });
+      }
+      items.push(
+        {
+          id: "command",
+          label: "Commands",
+          icon: <CommandIcon size={15} />,
+          onSelect: () => setShowCommand(true),
+        },
+        {
+          id: "help",
+          label: "How to play",
+          icon: <HelpIcon size={15} />,
+          onSelect: () => setShowHelp(true),
+        },
+        {
+          id: "settings",
+          label: "Settings",
+          icon: <SettingsIcon size={15} />,
+          onSelect: () => setShowSettings(true),
+        }
+      );
+      useContextMenu.getState().open(e.clientX, e.clientY, items);
+    },
+    [togglePause]
+  );
+
+  const commands = useMemo<Command[]>(() => {
+    const settings = useSettings.getState();
+    const paused = phase === "paused";
+    const modeIcon: Record<ModeId, ReactNode> = {
+      classic: <GridIcon size={15} />,
+      "no-guess": <CommandIcon size={15} />,
+      daily: <CalendarIcon size={15} />,
+      rush: <ZapIcon size={15} />,
+      zen: <LeafIcon size={15} />,
+    };
+    return [
+      {
+        id: "modeselect",
+        group: "Game",
+        label: "New game",
+        keywords: "start board pick mode",
+        icon: <PlayIcon size={15} />,
+        onRun: () => {
+          primeAudio();
+          setShowMode(true);
+        },
+      },
+      {
+        id: "restart",
+        group: "Game",
+        label: "Restart board",
+        keywords: "reset clear",
+        icon: <RestartIcon size={15} />,
+        onRun: () => {
+          playSound("newgame");
+          useGame.getState().restart();
+          toast("Board restarted");
+        },
+      },
+      paused
+        ? {
+            id: "resume",
+            group: "Game",
+            label: "Resume game",
+            keywords: "continue unpause",
+            icon: <PlayIcon size={15} />,
+            onRun: togglePause,
+          }
+        : {
+            id: "pause",
+            group: "Game",
+            label: "Pause game",
+            keywords: "stop hold",
+            icon: <PauseIcon size={15} />,
+            onRun: togglePause,
+          },
+      ...MODE_LIST.map((m) => ({
+        id: `start-${m.id}`,
+        group: "Start a mode",
+        label: m.name,
+        keywords: m.description,
+        icon: modeIcon[m.id],
+        onRun: () => startMode(m.id),
+      })),
+      { id: "stats", group: "Library", label: "Records and stats", keywords: "achievements history scores", icon: <TrophyIcon size={15} />, onRun: () => setShowStats(true) },
+      { id: "settings", group: "Library", label: "Settings", keywords: "preferences options", icon: <SettingsIcon size={15} />, onRun: () => setShowSettings(true) },
+      { id: "help", group: "Library", label: "How to play", keywords: "help shortcuts gestures controls", icon: <HelpIcon size={15} />, onRun: () => setShowHelp(true) },
+      settings.sound
+        ? { id: "sound-off", group: "Preferences", label: "Turn sound off", keywords: "audio mute", icon: <SpeakerIcon size={15} />, onRun: () => { useSettings.getState().toggleSound(); toast("Sound off"); } }
+        : { id: "sound-on", group: "Preferences", label: "Turn sound on", keywords: "audio mute", icon: <SpeakerOffIcon size={15} />, onRun: () => { useSettings.getState().toggleSound(); toast("Sound on"); } },
+      settings.haptics
+        ? { id: "haptics-off", group: "Preferences", label: "Turn haptics off", keywords: "vibration feedback", icon: <VibrateIcon size={15} />, onRun: () => { useSettings.getState().toggleHaptics(); toast("Haptics off"); } }
+        : { id: "haptics-on", group: "Preferences", label: "Turn haptics on", keywords: "vibration feedback", icon: <VibrateIcon size={15} />, onRun: () => { useSettings.getState().toggleHaptics(); toast("Haptics on"); } },
+    ];
+  }, [phase, startMode, togglePause]);
+
   /* ---------------------------------- keyboard --------------------------------- */
 
   useEffect(() => {
@@ -136,7 +308,19 @@ export function GameScreen() {
       const raw = e.key.toLowerCase();
       const active = document.activeElement;
       const typing = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
-      if (typing || showMode || showSettings) return;
+
+      if ((e.ctrlKey || e.metaKey) && raw === "k") {
+        e.preventDefault();
+        setShowCommand((v) => !v);
+        return;
+      }
+      if (typing) return;
+      if (raw === "?" && !showMode && !showSettings && !showStats && !showHelp) {
+        e.preventDefault();
+        setShowHelp(true);
+        return;
+      }
+      if (showMode || showSettings || showStats || showHelp || showCommand) return;
 
       const store = useGame.getState();
       const phaseNow = store.engine.phase;
@@ -195,7 +379,7 @@ export function GameScreen() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [cursor, cols, rows, showMode, showSettings, togglePause]);
+  }, [cursor, cols, rows, showMode, showSettings, showStats, showHelp, showCommand, togglePause]);
 
   /* ------------------------------- settle results ------------------------------ */
 
@@ -246,36 +430,55 @@ export function GameScreen() {
           <span className="hidden text-2xs uppercase tracking-widest text-ink-muted sm:block">{modeLabel} / {presetLabel}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label="Records and stats"
-            onClick={() => {
-              primeAudio();
-              setShowStats(true);
-            }}
-            className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
-          >
-            <TrophyIcon size={18} />
-          </button>
-          <button
-            type="button"
-            aria-label="Pause"
-            onClick={togglePause}
-            className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
-          >
-            <PauseIcon size={18} />
-          </button>
-          <button
-            type="button"
-            aria-label="Settings"
-            onClick={() => {
-              primeAudio();
-              setShowSettings(true);
-            }}
-            className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
-          >
-            <SettingsIcon size={19} />
-          </button>
+          <Tooltip label="Records and stats">
+            <button
+              type="button"
+              aria-label="Records and stats"
+              onClick={() => {
+                primeAudio();
+                setShowStats(true);
+              }}
+              className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
+            >
+              <TrophyIcon size={18} />
+            </button>
+          </Tooltip>
+          <Tooltip label="How to play">
+            <button
+              type="button"
+              aria-label="How to play"
+              onClick={() => {
+                primeAudio();
+                setShowHelp(true);
+              }}
+              className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
+            >
+              <HelpIcon size={18} />
+            </button>
+          </Tooltip>
+          <Tooltip label="Pause or resume">
+            <button
+              type="button"
+              aria-label="Pause"
+              onClick={togglePause}
+              className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
+            >
+              <PauseIcon size={18} />
+            </button>
+          </Tooltip>
+          <Tooltip label="Settings">
+            <button
+              type="button"
+              aria-label="Settings"
+              onClick={() => {
+                primeAudio();
+                setShowSettings(true);
+              }}
+              className="press no-select flex size-10 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink"
+            >
+              <SettingsIcon size={19} />
+            </button>
+          </Tooltip>
         </div>
       </header>
 
@@ -283,7 +486,7 @@ export function GameScreen() {
         <Hud onModeClick={() => setShowMode(true)} onUndo={() => useGame.getState().undo()} onRestart={() => useGame.getState().restart()} />
 
         <div className="relative mb-3 mt-3 min-h-0 flex-1 px-2">
-          <div className="game-canvas absolute inset-0">
+          <div className="game-canvas absolute inset-0" onContextMenu={openBoardMenu}>
             <BoardGrid cursor={cursor} />
           </div>
 
@@ -363,6 +566,7 @@ export function GameScreen() {
             </span>
           )}
           <span className="sm:hidden">Tap to reveal / Hold to flag / Double-tap to clear around a number</span>
+          <span className="hidden lg:inline">/ Ctrl+K commands</span>
         </div>
       </main>
 
@@ -376,6 +580,10 @@ export function GameScreen() {
       />
       <SettingsSheet open={showSettings} onClose={() => setShowSettings(false)} />
       <StatsSheet open={showStats} onClose={() => setShowStats(false)} />
+      <HelpSheet open={showHelp} onClose={() => setShowHelp(false)} />
+      <CommandPalette open={showCommand} onClose={() => setShowCommand(false)} commands={commands} />
+      <ContextMenuLayer />
+      <ToastViewport />
     </div>
   );
 }

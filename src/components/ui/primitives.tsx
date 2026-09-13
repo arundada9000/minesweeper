@@ -3,7 +3,7 @@
  * tokens: no hard-coded hex, sizes, or spacing in components.
  */
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent } from "react";
 import { motion, AnimatePresence, type HTMLMotionProps } from "motion/react";
 import { CloseIcon as CloseGlyph } from "./icons";
 
@@ -140,6 +140,96 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
         transition={{ type: "spring", stiffness: 700, damping: 32 }}
         className="absolute top-0.5 size-6 rounded-full bg-elevated shadow-ios"
         style={{ left: checked ? "calc(100% - 1.625rem)" : "0.125rem" }}
+      />
+    </button>
+  );
+}
+
+/* -------------------------------- Tooltip --------------------------------- */
+
+export function Tooltip({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span className="group relative inline-flex">
+      {children}
+      <span
+        role="tooltip"
+        className="pointer-events-none invisible absolute bottom-full left-1/2 z-context mb-2 whitespace-nowrap rounded-lg bg-elevated px-2.5 py-1 text-xs font-medium text-ink opacity-0 shadow-pop hairline transition-all duration-fast group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+        style={{ transform: "translate(-50%, 0.125rem)" }}
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
+
+/* --------------------------------- Slider --------------------------------- */
+
+interface SliderProps {
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+  label: string;
+}
+
+export function Slider({ value, min, max, step, onChange, label }: SliderProps) {
+  const trackRef = useRef<HTMLButtonElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)));
+
+  const setFromX = (clientX: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const raw = ((clientX - rect.left) / rect.width) * (max - min) + min;
+    const snapped = Math.round(raw / step) * step;
+    onChange(Math.min(max, Math.max(min, snapped)));
+  };
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    setDragging(true);
+    setFromX(e.clientX);
+  };
+  useEffect(() => {
+    const up = () => setDragging(false);
+    window.addEventListener("pointerup", up);
+    return () => window.removeEventListener("pointerup", up);
+  }, []);
+
+  return (
+    <button
+      ref={trackRef}
+      type="button"
+      role="slider"
+      aria-label={label}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      onPointerDown={onPointerDown}
+      onPointerMove={(e) => {
+        if (dragging) setFromX(e.clientX);
+      }}
+      onKeyDown={(e) => {
+        const delta = e.key === "ArrowRight" || e.key === "ArrowUp" ? step : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -step : 0;
+        if (delta) {
+          e.preventDefault();
+          onChange(Math.min(max, Math.max(min, value + delta)));
+        }
+      }}
+      className="press no-select relative h-8 w-full touch-none rounded-full outline-none"
+    >
+      <span className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-track" />
+      <span
+        className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-accent"
+        style={{ left: "0.25rem", width: `calc((100% - 0.5rem) * ${ratio})` }}
+      />
+      <span
+        className="absolute top-1/2 size-6 -translate-y-1/2 rounded-full bg-elevated shadow-ios ring-1 ring-line-strong"
+        style={{ left: `calc(0.25rem + (100% - 0.5rem) * ${ratio})`, transform: "translate(-50%, -50%)" }}
       />
     </button>
   );

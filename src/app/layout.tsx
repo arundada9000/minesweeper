@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "./globals.css";
 import { GameScreen } from "@/components/game/GameScreen";
 import { inlineTokenScript } from "@/components/game/inlineTokens";
 
