@@ -9,16 +9,16 @@ importers:
   .:
     dependencies:
       '@fontsource-variable/jetbrains-mono':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@fontsource/lexend':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@fontsource/public-sans':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       motion:
-        specifier: ^13.2.0
+        specifier: 13.2.0
         version: 13.2.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       next:
         specifier: 16.3.5
@@ -30,14 +30,14 @@ importers:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       zustand:
-        specifier: ^5.0.15
+        specifier: 5.0.15
         version: 5.0.15(@types/react@19.3.0)(react@19.2.8)
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
       '@types/node':
-        specifier: ^24.13.4
+        specifier: ^24
         version: 24.13.4
       '@types/react':
         specifier: ^19
@@ -45,9 +45,6 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.3.0(@types/react@19.3.0)
-      '@vitest/ui':
-        specifier: ^5.0.0
-        version: 5.0.0(vitest@5.0.0)
       tailwindcss:
         specifier: ^4
         version: 4.3.3
@@ -55,7 +52,7 @@ importers:
         specifier: ^5
         version: 5.9.3
       vitest:
-        specifier: ^5.0.0
+        specifier: 5.0.0
         version: 5.0.0(@types/node@24.13.4)(@vitest/ui@5.0.0)(vite@8.3.0(@types/node@24.13.4)(jiti@2.7.0))
 
 packages:
@@ -1195,7 +1192,8 @@ snapshots:
 
   '@oxc-project/types@0.149.0': {}
 
-  '@polka/url@1.0.0-next.29': {}
+  '@polka/url@1.0.0-next.29':
+    optional: true
 
   '@rolldown/binding-android-arm-eabi@1.2.8':
     optional: true
@@ -1350,6 +1348,7 @@ snapshots:
   '@vitest/pretty-format@5.0.0':
     dependencies:
       tinyrainbow: 3.1.1
+    optional: true
 
   '@vitest/spy@5.0.0': {}
 
@@ -1362,12 +1361,14 @@ snapshots:
       sirv: 3.0.2
       tinyrainbow: 3.1.1
       vitest: 5.0.0(@types/node@24.13.4)(@vitest/ui@5.0.0)(vite@8.3.0(@types/node@24.13.4)(jiti@2.7.0))
+    optional: true
 
   '@vitest/utils@5.0.0':
     dependencies:
       '@vitest/pretty-format': 5.0.0
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
+    optional: true
 
   assertion-error@2.0.1: {}
 
@@ -1379,7 +1380,8 @@ snapshots:
 
   client-only@0.0.1: {}
 
-  convert-source-map@2.0.0: {}
+  convert-source-map@2.0.0:
+    optional: true
 
   csstype@3.2.3: {}
 
@@ -1402,9 +1404,11 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.7
 
-  fflate@0.8.3: {}
+  fflate@0.8.3:
+    optional: true
 
-  flatted@3.4.4: {}
+  flatted@3.4.4:
+    optional: true
 
   framer-motion@13.2.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
@@ -1542,7 +1546,8 @@ snapshots:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
-  mrmime@2.0.1: {}
+  mrmime@2.0.1:
+    optional: true
 
   nanoid@3.3.19: {}
 
@@ -1573,7 +1578,8 @@ snapshots:
 
   obug@2.2.1: {}
 
-  pathe@2.0.3: {}
+  pathe@2.0.3:
+    optional: true
 
   picocolors@1.1.1: {}
 
@@ -1665,6 +1671,7 @@ snapshots:
       '@polka/url': 1.0.0-next.29
       mrmime: 2.0.1
       totalist: 3.0.1
+    optional: true
 
   source-map-js@1.2.1: {}
 
@@ -1690,9 +1697,11 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.7)
       picomatch: 4.0.7
 
-  tinyrainbow@3.1.1: {}
+  tinyrainbow@3.1.1:
+    optional: true
 
-  totalist@3.0.1: {}
+  totalist@3.0.1:
+    optional: true
 
   tslib@2.8.1: {}
 
