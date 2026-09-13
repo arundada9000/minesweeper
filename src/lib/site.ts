@@ -3,7 +3,7 @@
  * the JSON-LD structured data.
  */
 
-export const SITE_URL = "https://sweepermine.vercel.app";
+export const SITE_URL = "https://easyminesweeper.vercel.app";
 
 export const SITE_NAME = "SweeperMine";
 export const SITE_DESCRIPTION =

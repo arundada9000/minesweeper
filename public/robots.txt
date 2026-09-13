@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 
-Sitemap: https://sweepermine.vercel.app/sitemap.xml
+Sitemap: https://easyminesweeper.vercel.app/sitemap.xml
