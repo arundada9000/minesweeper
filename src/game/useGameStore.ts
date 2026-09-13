@@ -81,9 +81,11 @@ export function buildConfig(mode: ModeId, preset: PresetId, custom: CustomBoardS
     mineCount: dims.mineCount,
     seed: randomSeed(),
     topology: "square",
-    firstClickSafe: true,
+    // Custom Classic controls these (game-logic §48); other modes keep their
+    // declared defaults. Old saved runs lack the booleans, so fall back safe.
+    firstClickSafe: useCustom ? clampCustom(custom).firstClickSafe : true,
     generousOpening: true,
-    questionMarks: mode === "rush" ? false : def.questionMarks,
+    questionMarks: useCustom ? clampCustom(custom).questionMarks : mode === "rush" ? false : def.questionMarks,
     noGuess: mode === "no-guess",
     openAt: "click",
     timeLimitMs: presetData?.timeLimitMs,

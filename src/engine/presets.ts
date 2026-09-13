@@ -62,16 +62,22 @@ export function getPreset(mode: ModeId, id: PresetId): ModePreset | null {
   return PRESETS_BY_MODE[mode]?.find((p) => p.id === id) ?? null;
 }
 
-export const CUSTOM_DEFAULTS: Readonly<Omit<ModePreset, "id" | "name" | "hint">> = {
+export const CUSTOM_DEFAULTS: Readonly<CustomBoardSpec> = {
   width: 16,
   height: 16,
   mineCount: 40,
+  firstClickSafe: true,
+  questionMarks: true,
 };
 
 export interface CustomBoardSpec {
   width: number;
   height: number;
   mineCount: number;
+  /** Classic: the first reveal must never land on a mine (game-logic §6). */
+  firstClickSafe: boolean;
+  /** Classic: the flag cycle may pass through a question-mark state. */
+  questionMarks: boolean;
 }
 
 /** Clamp arbitrary custom values to the engine's supported range. */
@@ -83,5 +89,7 @@ export function clampCustom(spec: CustomBoardSpec): CustomBoardSpec {
     width,
     height,
     mineCount: Math.min(maxMines, Math.max(1, Math.round(spec.mineCount))),
+    firstClickSafe: spec.firstClickSafe !== false,
+    questionMarks: spec.questionMarks !== false,
   };
 }

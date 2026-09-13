@@ -5,7 +5,7 @@
  */
 
 import { useMemo, useState } from "react";
-import { Sheet, SegmentedControl, Button, type SegmentedOption } from "../ui/primitives";
+import { Sheet, SegmentedControl, Button, Switch, type SegmentedOption } from "../ui/primitives";
 import { GridIcon, SparkleIcon, CalendarIcon, ZapIcon, LeafIcon, GraduationIcon } from "../ui/icons";
 import { PRESETS_BY_MODE, CUSTOM_DEFAULTS, clampCustom, type PresetId, type CustomBoardSpec } from "@/engine/presets";
 import { MODE_LIST } from "@/engine/modes";
@@ -144,17 +144,35 @@ export function ModeSelect({ open, onClose, onStart }: ModeSelectProps) {
       </div>
 
       {preset === "custom" && (
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          <Stepper label="Width" value={custom.width} min={5} max={40} step={1} onChange={(v) => setDim("width", v)} />
-          <Stepper label="Height" value={custom.height} min={5} max={40} step={1} onChange={(v) => setDim("height", v)} />
-          <Stepper
-            label="Mines"
-            value={custom.mineCount}
-            min={1}
-            max={Math.floor(custom.width * custom.height * 0.85)}
-            step={1}
-            onChange={(v) => setCustom((prev) => clampCustom({ ...prev, mineCount: v }))}
-          />
+        <div className="mb-4">
+          <div className="grid grid-cols-3 gap-2">
+            <Stepper label="Width" value={custom.width} min={5} max={40} step={1} onChange={(v) => setDim("width", v)} />
+            <Stepper label="Height" value={custom.height} min={5} max={40} step={1} onChange={(v) => setDim("height", v)} />
+            <Stepper
+              label="Mines"
+              value={custom.mineCount}
+              min={1}
+              max={Math.floor(custom.width * custom.height * 0.85)}
+              step={1}
+              onChange={(v) => setCustom((prev) => clampCustom({ ...prev, mineCount: v }))}
+            />
+          </div>
+          <div className="mt-2 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-3 py-2">
+              <div>
+                <div className="text-sm font-medium text-ink">First-click safety</div>
+                <div className="text-2xs text-ink-muted">The board opens safely around your first tap</div>
+              </div>
+              <Switch checked={custom.firstClickSafe} onChange={(v) => setCustom((prev) => clampCustom({ ...prev, firstClickSafe: v }))} label="First-click safety" />
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface-2 px-3 py-2">
+              <div>
+                <div className="text-sm font-medium text-ink">Question marks</div>
+                <div className="text-2xs text-ink-muted">The flag cycle passes through a question state</div>
+              </div>
+              <Switch checked={custom.questionMarks} onChange={(v) => setCustom((prev) => clampCustom({ ...prev, questionMarks: v }))} label="Question marks" />
+            </div>
+          </div>
         </div>
       )}
 
