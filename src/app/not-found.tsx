@@ -12,7 +12,7 @@ export default function NotFound() {
           You cleared every cell but this one: the page does not exist. Start a fresh board instead.
         </p>
       </div>
-      <Link href="/" className="press rounded-2xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent">
+      <Link href="/play" className="press rounded-2xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent">
         New game
       </Link>
     </main>

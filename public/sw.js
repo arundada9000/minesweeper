@@ -9,7 +9,7 @@
  */
 
 const CACHE = "sweepermine-v1";
-const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/favicon.ico"];
+const SHELL = ["/", "/play", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/favicon.ico"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

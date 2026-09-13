@@ -6,7 +6,7 @@ import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, AUTHOR_NAME, AUTHOR_URL } from "
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "SweeperMine - think clearly, clear everything", template: "%s | SweeperMine" },
+  title: { default: "Easy Minesweeper - think clearly, clear everything", template: "%s | Easy Minesweeper" },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   authors: [{ name: AUTHOR_NAME, url: AUTHOR_URL }],
@@ -19,14 +19,14 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: SITE_NAME,
-    title: "SweeperMine - think clearly, clear everything",
+    title: "Easy Minesweeper - think clearly, clear everything",
     description: SITE_DESCRIPTION,
     locale: "en_US",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "SweeperMine mine emblem on dark ink" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Easy Minesweeper mine emblem on dark ink" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SweeperMine - think clearly, clear everything",
+    title: "Easy Minesweeper - think clearly, clear everything",
     description: SITE_DESCRIPTION,
     images: ["/og.png"],
   },
@@ -73,6 +73,7 @@ export default function Home({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
+        {/* Direction: the incumbent minesweeper world is extended outward, not replaced. Root `/` is the Field Map landing (seed key 4ad95c77): a cleared field as map, number glyphs as section markers, contour terrain. The game stays pristine at /play inside its own app frame (no site chrome, no ads). Plot: every page reads as part of the minefield, guides teach the real mechanics, records stay on-device. Finish line: game is untouched; marketing pages feel like the product, not like a template. */}
         <script dangerouslySetInnerHTML={{ __html: inlineTokenScript }} />
         {children}
       </body>

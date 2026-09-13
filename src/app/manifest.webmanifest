@@ -1,9 +1,9 @@
 {
-  "name": "SweeperMine",
-  "short_name": "SweeperMine",
+  "name": "Easy Minesweeper",
+  "short_name": "Easy Minesweeper",
   "description": "Think clearly. Clear everything. A calm, offline-first minesweeper.",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/play/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
