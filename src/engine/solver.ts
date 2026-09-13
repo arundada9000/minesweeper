@@ -204,15 +204,17 @@ function popcount(x: number): number {
 
 /* --------------------------- No Guess generation --------------------------- */
 
-/** Simulate logical play on a fresh board and report if a guess is unavoidable. */
-export function boardIsLogical(board: Board, config: BoardConfig): boolean {
+/**
+ * Simulate logical play on a fresh board and report if a guess is unavoidable.
+ * `startIndex` is where the logical run's first reveal happens (the board's
+ * guaranteed opening); validation from that cell makes the guarantee honest.
+ */
+export function boardIsLogical(board: Board, config: BoardConfig, startIndex = 0): boolean {
   const sim = cloneBoard(board);
   if (!sim) return false;
 
   const { width, height, topology } = config;
 
-  // Faithful replay of the engine's engine.first-click flow.
-  const startIndex = 0;
   floodRevealSim(sim, config, startIndex);
 
   let guard = 0;
@@ -304,7 +306,10 @@ export function generateNoGuessBoard(opts: NoGuessOptions): { board: Board; seed
       generousOpening: true,
       questionMarks: true,
     };
-    if (boardIsLogical(board, config)) {
+    // Validate from the board's actual center opening, not a hard-coded corner.
+    const cx = Math.floor(width / 2);
+    const cy = Math.floor(height / 2);
+    if (boardIsLogical(board, config, cy * width + cx)) {
       return { board, seed: candidateSeed };
     }
     seedIndex++;

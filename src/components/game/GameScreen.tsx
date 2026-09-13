@@ -12,8 +12,8 @@ import { useSettings, applySettingsToDocument, applyMotionMedia } from "@/game/u
 import { playSound, haptic, primeAudio } from "@/game/sound";
 import { getMode } from "@/engine/modes";
 import { getPreset } from "@/engine/presets";
-import type { ClassicPresetId } from "@/engine/presets";
-import type { CustomBoardSpec } from "@/engine/presets";
+import type { PresetId, CustomBoardSpec } from "@/engine/presets";
+import type { ModeId } from "@/engine/types";
 import { PauseIcon, SettingsIcon, KeyboardIcon } from "../ui/icons";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
@@ -110,12 +110,12 @@ export function GameScreen() {
     haptic("tap");
   }, []);
 
-  const startGame = useCallback((presetId: ClassicPresetId, custom: CustomBoardSpec) => {
+  const startGame = useCallback((nextMode: ModeId, presetId: PresetId, custom: CustomBoardSpec) => {
     setContinuePrompt(null);
     setShowMode(false);
     setShowResult(false);
     setCursor(null);
-    useGame.getState().newGame("classic", presetId, custom);
+    useGame.getState().newGame(nextMode, presetId, custom);
   }, []);
 
   const abandon = useCallback(() => {
@@ -213,9 +213,19 @@ export function GameScreen() {
   const lost = phase === "lost";
   const paused = phase === "paused";
   const finished = won || lost;
-  const modeLabel = getMode(mode).name;
-  const presetEntry = getPreset(preset);
+  const modeDef = getMode(mode);
+  const modeLabel = modeDef.name;
+  const presetEntry = getPreset(mode, preset);
   const presetLabel = preset === "custom" ? `${cols} x ${rows}` : presetEntry?.name ?? preset;
+
+  const resultStats: "standard" | "rush" | "zen" =
+    modeDef.score === "rush" ? "rush" : modeDef.timer === "none" ? "zen" : "standard";
+  const timeLimit = engine.timeLimitMs;
+  const rushScore = won
+    ? 1000 + Math.round((timeLimit !== null && timeLimit !== undefined ? Math.max(0, timeLimit - engine.elapsedMs) : 0) / 1000) * 10
+    : Math.round(engine.elapsedMs / 1000);
+  const timeUp = lost && engine.reason === "Time's up.";
+  const showUndoHint = modeDef.undoAllowed;
 
   return (
     <div className="no-select flex h-dvh flex-col bg-canvas">
@@ -260,7 +270,7 @@ export function GameScreen() {
               <ContinueOverlay
                 key="continue"
                 savedAt={continuePrompt.savedAt}
-                label={`${getMode(continuePrompt.mode).name} / ${continuePrompt.preset === "custom" ? "Custom" : getPreset(continuePrompt.preset)?.name ?? "Game"}`}
+                label={`${getMode(continuePrompt.mode).name} / ${continuePrompt.preset === "custom" ? "Custom" : getPreset(continuePrompt.mode, continuePrompt.preset)?.name ?? "Game"}`}
                 onContinue={() => {
                   playSound("confirm");
                   haptic("tap");
@@ -297,6 +307,10 @@ export function GameScreen() {
                 timeMs={engine.elapsedMs}
                 mines={engine.config.mineCount}
                 moves={engine.moves}
+                stats={resultStats}
+                cleared={engine.revealedSafeCount}
+                score={rushScore}
+                timeUp={timeUp}
                 onPlayAgain={() => {
                   playSound("newgame");
                   useGame.getState().restart();
@@ -315,7 +329,15 @@ export function GameScreen() {
 
         <div className="safe-bottom flex items-center justify-center gap-2 px-5 pb-2 text-2xs text-ink-muted">
           <KeyboardIcon size={13} />
-          <span className="hidden sm:inline">Arrows move / Space reveals / F flags / R restarts / P pauses / Z undoes</span>
+          {mode !== "zen" ? (
+            <span className="hidden sm:inline">
+              Arrows move / Space reveals / F flags {showUndoHint ? "/ Z undoes" : ""} / R restarts / P pauses
+            </span>
+          ) : (
+            <span className="hidden sm:inline">
+              Arrows move / Space reveals / F flags / R restarts / Z undoes
+            </span>
+          )}
           <span className="sm:hidden">Tap to reveal / Hold to flag / Double-tap to clear around a number</span>
         </div>
       </main>

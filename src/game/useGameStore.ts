@@ -5,19 +5,88 @@
  */
 
 import { create } from "zustand";
-import { GameEngine, randomSeed } from "@/engine";
+import { GameEngine, randomSeed, dailySeed } from "@/engine";
 import type { BoardConfig, ModeId } from "@/engine";
 import { getMode } from "@/engine/modes";
-import { getPreset, CLASSIC_PRESETS, CUSTOM_DEFAULTS, clampCustom, type ClassicPresetId, type CustomBoardSpec } from "@/engine/presets";
+import {
+  getPreset,
+  DAILY_PRESET,
+  PRESETS_BY_MODE,
+  CUSTOM_DEFAULTS,
+  clampCustom,
+  type CustomBoardSpec,
+  type ModePreset,
+  type PresetId,
+} from "@/engine/presets";
 
 export const SAVE_KEY = "swm.run.v1";
 
 export interface SavedRun {
   mode: ModeId;
-  preset: ClassicPresetId;
+  preset: PresetId;
   custom: CustomBoardSpec;
   savedAt: number;
   payload: unknown;
+  /** The generation seed for deterministic modes (Daily); keeps the board
+   *  identical even when a run is continued across midnight. */
+  generationSeed?: string | number;
+}
+
+/** Local calendar date stamp (YYYY-MM-DD) for the Daily puzzle. */
+export function dateStamp(d = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function presetOrDefault(mode: ModeId, preset: PresetId): PresetId {
+  return getPreset(mode, preset) ? preset : (PRESETS_BY_MODE[mode][0]?.id ?? "beginner");
+}
+
+export function buildConfig(mode: ModeId, preset: PresetId, custom: CustomBoardSpec): BoardConfig {
+  const def = getMode(mode).defaults;
+  const presetData = getPreset(mode, presetOrDefault(mode, preset));
+
+  if (mode === "daily") {
+    // One deterministic, logically solvable board per calendar day. The opening
+    // is anchored at the center so every player sees the exact same layout.
+    return {
+      width: DAILY_PRESET.width,
+      height: DAILY_PRESET.height,
+      mineCount: DAILY_PRESET.mineCount,
+      seed: dailySeed(dateStamp()),
+      topology: "square",
+      firstClickSafe: true,
+      generousOpening: true,
+      questionMarks: true,
+      noGuess: true,
+      openAt: "center",
+    };
+  }
+
+  const useCustom = mode === "classic" && preset === "custom";
+  const dims = useCustom
+    ? clampCustom(custom)
+    : {
+        width: presetData?.width ?? def.width,
+        height: presetData?.height ?? def.height,
+        mineCount: presetData?.mineCount ?? def.mineCount,
+      };
+
+  return {
+    width: dims.width,
+    height: dims.height,
+    mineCount: dims.mineCount,
+    seed: randomSeed(),
+    topology: "square",
+    firstClickSafe: true,
+    generousOpening: true,
+    questionMarks: mode === "rush" ? false : def.questionMarks,
+    noGuess: mode === "no-guess",
+    openAt: "click",
+    timeLimitMs: presetData?.timeLimitMs,
+  };
 }
 
 export function loadSavedRun(): SavedRun | null {
@@ -42,7 +111,7 @@ export function clearSavedRun(): void {
   }
 }
 
-function saveRun(engine: GameEngine, mode: ModeId, preset: ClassicPresetId, custom: CustomBoardSpec): void {
+function saveRun(engine: GameEngine, mode: ModeId, preset: PresetId, custom: CustomBoardSpec): void {
   if (typeof window === "undefined") return;
   const phase = engine.phase;
   if (phase === "won" || phase === "lost" || phase === "idle") {
@@ -55,6 +124,7 @@ function saveRun(engine: GameEngine, mode: ModeId, preset: ClassicPresetId, cust
       preset,
       custom,
       savedAt: Date.now(),
+      generationSeed: engine.config.openAt === "center" ? engine.config.seed : undefined,
       payload: engine.serialize(),
     };
     window.localStorage.setItem(SAVE_KEY, JSON.stringify(entry));
@@ -63,27 +133,9 @@ function saveRun(engine: GameEngine, mode: ModeId, preset: ClassicPresetId, cust
   }
 }
 
-export function buildConfig(mode: ModeId, preset: ClassicPresetId, custom: CustomBoardSpec): BoardConfig {
-  const def = getMode(mode).defaults;
-  const presetData = getPreset(preset);
-  const width = preset === "custom" ? custom.width : presetData?.width ?? def.width;
-  const height = preset === "custom" ? custom.height : presetData?.height ?? def.height;
-  const mineCount = preset === "custom" ? custom.mineCount : presetData?.mineCount ?? def.mineCount;
-  return {
-    width,
-    height,
-    mineCount,
-    seed: randomSeed(),
-    topology: "square",
-    firstClickSafe: true,
-    generousOpening: true,
-    questionMarks: true,
-  };
-}
-
 interface GameStore {
   mode: ModeId;
-  preset: ClassicPresetId;
+  preset: PresetId;
   custom: CustomBoardSpec;
   cols: number;
   rows: number;
@@ -96,7 +148,7 @@ interface GameStore {
   lastReveal: readonly number[];
   hasSavedRun: boolean;
 
-  newGame: (mode?: ModeId, preset?: ClassicPresetId, custom?: CustomBoardSpec) => void;
+  newGame: (mode?: ModeId, preset?: PresetId, custom?: CustomBoardSpec) => void;
   restart: () => void;
   continueSaved: () => void;
   dismissSaved: () => void;
@@ -117,7 +169,7 @@ function signatureOf(engine: GameEngine): string {
 }
 
 export const useGame = create<GameStore>()((set, get) => {
-  const sync = (engine: GameEngine, mode: ModeId, preset: ClassicPresetId, custom: CustomBoardSpec) => {
+  const sync = (engine: GameEngine, mode: ModeId, preset: PresetId, custom: CustomBoardSpec) => {
     const signature = signatureOf(engine);
     const cellsChanged = signature !== prevSignature;
     prevSignature = signature;
@@ -175,6 +227,7 @@ export const useGame = create<GameStore>()((set, get) => {
       const saved = loadSavedRun();
       if (!saved) return;
       const config = buildConfig(saved.mode, saved.preset, saved.custom);
+      if (saved.generationSeed) config.seed = saved.generationSeed;
       const next = new GameEngine(config);
       prevSignature = signatureOf(next);
       next.hydrate(saved.payload);
@@ -225,6 +278,7 @@ export const useGame = create<GameStore>()((set, get) => {
 
     undo: () => {
       const { engine, mode, preset, custom } = get();
+      if (!getMode(mode).undoAllowed) return;
       if (engine.undo()) {
         set({ lastReveal: [] });
         sync(engine, mode, preset, custom);
@@ -251,5 +305,5 @@ export const useGame = create<GameStore>()((set, get) => {
   };
 });
 
-export { CLASSIC_PRESETS };
-export type { ClassicPresetId, CustomBoardSpec };
+export { getPreset, PRESETS_BY_MODE, DAILY_PRESET, CUSTOM_DEFAULTS, clampCustom };
+export type { ModePreset, PresetId, CustomBoardSpec };

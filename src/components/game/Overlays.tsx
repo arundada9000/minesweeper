@@ -89,11 +89,17 @@ export function PauseOverlay({
 
 /* ------------------------------- ResultOverlay ----------------------------- */
 
+export type ResultStats = "standard" | "rush" | "zen";
+
 export function ResultOverlay({
   won,
   timeMs,
   mines,
   moves,
+  stats = "standard",
+  cleared,
+  score,
+  timeUp,
   onPlayAgain,
   onNewBoard,
   onClose,
@@ -102,10 +108,23 @@ export function ResultOverlay({
   timeMs: number;
   mines: number;
   moves: number;
+  stats?: ResultStats;
+  cleared?: number;
+  score?: number;
+  timeUp?: boolean;
   onPlayAgain: () => void;
   onNewBoard: () => void;
   onClose: () => void;
 }) {
+  const title = won ? (stats === "rush" ? "Time beaten" : "Board cleared") : timeUp ? "Out of time" : "Hit a mine";
+  const sub = won
+    ? stats === "rush"
+      ? "The whole field, before the clock ran out."
+      : `Every safe cell revealed. Nice thinking.`
+    : timeUp
+      ? `The countdown won this one.`
+      : `Keep your flags honest, then try again.`;
+
   return (
     <Overlay>
       <div
@@ -113,18 +132,27 @@ export function ResultOverlay({
       >
         {won ? <CheckIcon size={26} /> : <MineIcon size={26} />}
       </div>
-      <h2 className="mb-1 text-xl font-semibold tracking-tight text-ink">{won ? "Board cleared" : "Hit a mine"}</h2>
-      <p className="mb-5 text-sm text-ink-muted">
-        {won
-          ? `Every safe cell revealed. Nice thinking.`
-          : `Keep your flags honest, then try again.`}
-      </p>
+      <h2 className="mb-1 text-xl font-semibold tracking-tight text-ink">{title}</h2>
+      <p className="mb-5 text-sm text-ink-muted">{sub}</p>
 
-      <div className="mb-5 grid grid-cols-3 gap-2 text-center">
-        <Stat label="Time" value={formatClock(timeMs)} />
-        <Stat label="Mines" value={String(mines)} />
-        <Stat label="Moves" value={String(moves)} />
-      </div>
+      {stats === "rush" ? (
+        <div className="mb-5 grid grid-cols-3 gap-2 text-center">
+          <Stat label="Score" value={String(score ?? 0)} />
+          <Stat label="Time" value={formatClock(timeMs)} />
+          <Stat label="Cleared" value={String(cleared ?? 0)} />
+        </div>
+      ) : stats === "zen" ? (
+        <div className="mb-5 grid grid-cols-2 gap-2 text-center">
+          <Stat label="Mines" value={String(mines)} />
+          <Stat label="Moves" value={String(moves)} />
+        </div>
+      ) : (
+        <div className="mb-5 grid grid-cols-3 gap-2 text-center">
+          <Stat label="Time" value={formatClock(timeMs)} />
+          <Stat label="Mines" value={String(mines)} />
+          <Stat label="Moves" value={String(moves)} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-2">
         <Button onClick={onPlayAgain}>{won ? "Play again" : "Try again"}</Button>

@@ -3,7 +3,6 @@
  * Counters stay tabular so digits do not jitter; values come from the engine.
  */
 
-import { useShallow } from "zustand/react/shallow";
 import { useGame } from "@/game/useGameStore";
 import { getMode } from "@/engine/modes";
 import { formatClock } from "../ui/primitives";
@@ -31,6 +30,13 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
 
   const modeDef = getMode(mode);
   const undoAllowed = modeDef.undoAllowed;
+
+  const limit = engine.timeLimitMs;
+  const countdown = modeDef.timer === "count-down" && limit != null;
+  const remaining = countdown ? Math.max(0, limit - time) : 0;
+  const clockLow = countdown && remaining <= 10_000;
+  const noTimer = modeDef.timer === "none";
+  const modeLabel = mode === "daily" ? "Today" : preset === "custom" ? `${cfg.width}×${cfg.height}` : preset;
 
   return (
     <div className="mx-5 flex items-stretch gap-1">
@@ -64,10 +70,16 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
           </button>
         </div>
 
-        <div className="flex items-center justify-end gap-1.5 rounded-xl bg-elevated px-3" aria-label={`Time ${formatClock(time)}`}>
-          <span className="font-mono text-lg font-bold tabular text-ink">{formatClock(time)}</span>
-          <ClockIcon size={15} className="text-ink-muted" />
-        </div>
+        {noTimer ? (
+          <div className="flex items-center justify-end gap-1 rounded-xl bg-elevated px-3" aria-label="No timer">
+            <span className="font-mono text-lg font-bold tabular text-ink-muted">Zen</span>
+          </div>
+        ) : (
+          <div className={`flex items-center justify-end gap-1.5 rounded-xl bg-elevated px-3 ${clockLow ? "text-red" : ""}`} aria-label={countdown ? `Time left ${formatClock(remaining)}` : `Time ${formatClock(time)}`}>
+            <span className={`font-mono text-lg font-bold tabular ${clockLow ? "text-red" : "text-ink"}`}>{formatClock(countdown ? remaining : time)}</span>
+            <ClockIcon size={15} className={clockLow ? "text-red" : "text-ink-muted"} />
+          </div>
+        )}
       </div>
 
       <button
@@ -77,7 +89,7 @@ export function Hud({ onModeClick, onUndo, onRestart }: { onModeClick: () => voi
         aria-label="Choose game mode"
       >
         <span className={`size-2 rounded-full bg-current ${PHASE_TINT[engine.phase] ?? "text-ink-muted"}`} />
-        <span className="font-medium">{preset === "custom" ? `${cfg.width}×${cfg.height}` : preset}</span>
+        <span className="font-medium">{modeLabel}</span>
       </button>
     </div>
   );

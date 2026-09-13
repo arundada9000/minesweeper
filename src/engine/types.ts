@@ -40,6 +40,20 @@ export interface BoardConfig {
   generousOpening: boolean;
   /** Whether the question-mark state participates in the flag cycle. */
   questionMarks: boolean;
+  /**
+   * Generate a logically solvable board (No Guess / Daily). The board is
+   * retried until the solver confirms it can be cleared without guessing.
+   */
+  noGuess?: boolean;
+  /**
+   * Where the guaranteed opening is anchored when the board is generated:
+   *  - "click": around the actual first click (default, first-click safety)
+   *  - "center": around a fixed center cell, so a fixed seed yields the exact
+   *    same layout regardless of which cell the player clicks first (Daily).
+   */
+  openAt?: "click" | "center";
+  /** Optional countdown: when elapsed reaches this, the run ends in a loss. */
+  timeLimitMs?: number;
 }
 
 export interface Board {

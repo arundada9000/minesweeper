@@ -38,15 +38,22 @@ export {
   randomSeed,
   puzzleId,
   shuffle,
+  dailySeed,
+  DAILY_GENERATOR_VERSION,
   type Rng,
 } from "./rng";
 export {
   CLASSIC_PRESETS,
+  ZEN_PRESETS,
+  NO_GUESS_PRESETS,
+  RUSH_PRESETS,
+  DAILY_PRESET,
+  PRESETS_BY_MODE,
   CUSTOM_DEFAULTS,
   getPreset,
   clampCustom,
-  type ClassicPreset,
-  type ClassicPresetId,
+  type ModePreset,
+  type PresetId,
 } from "./presets";
 export {
   MODES,

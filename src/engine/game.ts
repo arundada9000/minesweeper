@@ -8,6 +8,8 @@
 
 import { generateBoard, validateConfig, deserializeBoard, neighborCells, BoardConfigError } from "./board";
 import { chordReveal, chordTargets, floodReveal, cycleFlag, type FloodResult } from "./actions";
+import { boardIsLogical, generateNoGuessBoard } from "./solver";
+import { createRng } from "./rng";
 import type { Board, BoardConfig, GamePhase } from "./types";
 
 export interface RevealResult {
@@ -87,6 +89,11 @@ export class GameEngine {
 
   get moves(): number {
     return this.state.moves;
+  }
+
+  /** Countdown budget for Rush; null when the mode is untimed. */
+  get timeLimitMs(): number | null {
+    return this.config.timeLimitMs ?? null;
   }
 
   isFlagged(index: number): boolean {
@@ -268,6 +275,12 @@ export class GameEngine {
   tick(deltaMs: number): void {
     if (this.phase !== "playing") return;
     this.state.elapsedMs += deltaMs;
+    const limit = this.config.timeLimitMs;
+    if (limit !== undefined && this.state.elapsedMs >= limit) {
+      this.state.elapsedMs = limit;
+      this.lose(null);
+      this.setState({ reason: "Time's up." });
+    }
     this.emit();
   }
 
@@ -324,12 +337,27 @@ export class GameEngine {
   }
 
   private generateBoardAt(firstIndex: number): void {
+    // Fixed opening (Daily): one deterministic layout per seed, identical for
+    // every player regardless of which cell they open with.
+    if ((this.config.openAt ?? "click") === "center") {
+      this.board = this.generateFixedBoard();
+      return;
+    }
+
     const excluded: number[] = [firstIndex];
     if (this.config.generousOpening) {
       for (const n of neighborCells(this.config.width, this.config.height, this.config.topology, firstIndex)) {
         excluded.push(n);
       }
     }
+
+    // No Guess: keep generating candidate boards until the solver confirms the
+    // run can be cleared by logic alone from the player's actual first click.
+    if (this.config.noGuess) {
+      this.board = this.generateLogicalBoard(excluded, firstIndex);
+      return;
+    }
+
     try {
       this.board = generateBoard(this.generateOptions(excluded));
     } catch (err) {
@@ -338,6 +366,40 @@ export class GameEngine {
       // Fall back to first-click-only safety so the game is still playable.
       this.board = generateBoard(this.generateOptions([firstIndex]));
     }
+  }
+
+  /** Daily: a deterministic, logically solvable board anchored at the center. */
+  private generateFixedBoard(): Board {
+    const { width, height, mineCount } = this.config;
+    const result = generateNoGuessBoard({
+      width,
+      height,
+      mineCount,
+      seed: this.config.seed,
+      maxAttempts: 80,
+    });
+    return result.board;
+  }
+
+  /** No Guess: retry candidate boards (same seed family) until solvable. */
+  private generateLogicalBoard(excluded: readonly number[], startIndex: number): Board {
+    const rng = createRng(this.config.seed);
+    let last: Board | null = null;
+    for (let attempt = 0; attempt < 60; attempt++) {
+      const seed = attempt === 0 ? this.config.seed : (rng() * 0xffffffff) >>> 0;
+      const candidate = generateBoard({
+        width: this.config.width,
+        height: this.config.height,
+        mineCount: this.config.mineCount,
+        seed,
+        topology: this.config.topology,
+        excluded,
+      });
+      last = candidate;
+      if (boardIsLogical(candidate, this.config, startIndex)) return candidate;
+    }
+    // Extremely rare: hand back the last safe board rather than crash.
+    return last!;
   }
 
   private generateOptions(excluded: readonly number[]): {
@@ -371,7 +433,7 @@ export class GameEngine {
     });
   }
 
-  private lose(explodedMine: number): void {
+  private lose(explodedMine: number | null): void {
     if (!this.board) return;
     for (const cell of this.board.cells) {
       if (cell.state === "flagged" && !cell.isMine) {

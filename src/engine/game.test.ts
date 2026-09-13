@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { GameEngine } from "./game";
-import { neighborCells } from "./board";
-import type { BoardConfig } from "./types";
+import { neighborCells, deserializeBoard } from "./board";
+import { boardIsLogical } from "./solver";
+import type { Board, BoardConfig } from "./types";
 
 function makeConfig(overrides: Partial<BoardConfig> = {}): BoardConfig {
   return {
@@ -191,5 +192,52 @@ describe("GameEngine lifecycle", () => {
 
   it("rejects invalid configs at construction", () => {
     expect(() => new GameEngine(makeConfig({ mineCount: 0 }))).toThrow();
+  });
+
+  function boardOf(engine: GameEngine): Board {
+    const ser = engine.serialize() as { board: unknown };
+    return deserializeBoard(ser.board);
+  }
+
+  it("deferred No Guess boards are logically solvable from the first click", () => {
+    const engine = new GameEngine(makeConfig({ noGuess: true }));
+    const result = engine.reveal(CENTER);
+    expect(result?.firstReveal).toBe(true);
+    expect(engine.phase).toBe("playing");
+    const board = boardOf(engine);
+    expect(boardIsLogical(board, makeConfig({ noGuess: true }), CENTER)).toBe(true);
+  });
+
+  it("Daily boards are deterministic per seed regardless of the first click", () => {
+    const daily = makeConfig({ noGuess: true, openAt: "center", seed: "daily-2026-09-13" });
+    const a = new GameEngine(daily);
+    a.reveal(0);
+    const b = new GameEngine(daily);
+    b.reveal(8);
+    const mineMapA = boardOf(a).cells.map((c) => c.isMine);
+    const mineMapB = boardOf(b).cells.map((c) => c.isMine);
+    expect(mineMapA).toEqual(mineMapB);
+
+    const anotherDay = new GameEngine(makeConfig({ noGuess: true, openAt: "center", seed: "daily-2026-09-14" }));
+    anotherDay.reveal(0);
+    const mineMapC = boardOf(anotherDay).cells.map((c) => c.isMine);
+    expect(mineMapC).not.toEqual(mineMapA);
+  });
+
+  it("Rush loses when the countdown expires and caps the clock", () => {
+    const engine = new GameEngine(makeConfig({ timeLimitMs: 1000 }));
+    engine.reveal(CENTER);
+    engine.tick(700);
+    expect(engine.phase).toBe("playing");
+    expect(engine.timeLimitMs).toBe(1000);
+    engine.tick(700);
+    expect(engine.phase).toBe("lost");
+    expect(engine.elapsedMs).toBe(1000);
+    expect(engine.reason).toBe("Time's up.");
+  });
+
+  it("exposes the countdown budget", () => {
+    const untimed = new GameEngine(makeConfig());
+    expect(untimed.timeLimitMs).toBeNull();
   });
 });

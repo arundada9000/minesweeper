@@ -270,6 +270,7 @@
   grid-template-columns: repeat(var(--mines-cols), var(--cell-w));
   grid-template-rows: repeat(var(--mines-rows), var(--cell-w));
   gap: var(--cell-gap);
+  min-height: 0px;
 }
 
 @utility cell-surface {

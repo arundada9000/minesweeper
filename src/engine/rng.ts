@@ -85,3 +85,13 @@ export function shuffle<T>(items: T[], rng: Rng): T[] {
   }
   return items;
 }
+
+/**
+ * Deterministic per-day seed. Any change to board-gen rules must bump the
+ * generator version so past puzzles keep their identity (game-logic 52).
+ */
+export const DAILY_GENERATOR_VERSION = "v1";
+
+export function dailySeed(dateISO: string, variant = "daily"): string {
+  return `swm|daily|${dateISO}|${variant}|${DAILY_GENERATOR_VERSION}`;
+}

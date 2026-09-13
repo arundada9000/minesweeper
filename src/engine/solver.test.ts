@@ -119,7 +119,9 @@ describe("generateNoGuessBoard", () => {
     expect(board.cells.filter((c) => c.isMine)).toHaveLength(10);
     expect(Number.isFinite(String(seed).length)).toBe(true);
     const config = configFor(board);
-    expect(boardIsLogical(board, config)).toBe(true);
+    const cx = Math.floor(config.width / 2);
+    const cy = Math.floor(config.height / 2);
+    expect(boardIsLogical(board, config, cy * config.width + cx)).toBe(true);
   });
 
   it("is deterministic for the same seed", () => {
