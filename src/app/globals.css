@@ -24,6 +24,14 @@
   --font-display: var(--type-display);
   --font-mono: var(--type-mono);
 
+  /* spacing + radii resolve through the runtime variables */
+  --spacing: var(--spacing);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
   /* type scale */
   --text-2xs: var(--fs-2xs);
   --text-xs: var(--fs-xs);
@@ -254,6 +262,69 @@
 }
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------- Mines board ---------- */
+@utility mines-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--mines-cols), var(--cell-w));
+  grid-template-rows: repeat(var(--mines-rows), var(--cell-w));
+  gap: var(--cell-gap);
+}
+
+@utility cell-surface {
+  width: var(--cell-w);
+  height: var(--cell-w);
+  border-radius: var(--cell-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  & svg {
+    width: calc(var(--cell-w) * 0.52);
+    height: calc(var(--cell-w) * 0.52);
+  }
+  & span {
+    font-size: calc(var(--cell-w) * 0.46);
+    font-weight: 700;
+    line-height: 1;
+  }
+}
+
+@utility mines-scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes cell-pop {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.cell-new {
+  animation: cell-pop 0.22s var(--ease-touch) both;
+}
+
+@keyframes mine-burst {
+  0% {
+    transform: scale(0.4);
+  }
+  55% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cell-boom {
+  animation: mine-burst 0.4s var(--ease-touch) both;
 }
 
 /* ---------- Reduced motion ---------- */

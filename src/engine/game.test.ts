@@ -62,6 +62,23 @@ describe("GameEngine lifecycle", () => {
     expect(engine.minesLeft).toBe(10);
   });
 
+  it("unflags a flagged cell back to hidden", () => {
+    const engine = new GameEngine(makeConfig());
+    engine.reveal(CENTER);
+    const target = engine.cells.find((c) => c.index !== CENTER && c.state === "hidden")!.index;
+    engine.cycleFlag(target);
+    expect(engine.isFlagged(target)).toBe(true);
+    const restored = new GameEngine(makeConfig());
+    restored.hydrate(engine.serialize());
+    expect(restored.isFlagged(target)).toBe(true);
+    engine.unflag(target);
+    expect(engine.isFlagged(target)).toBe(false);
+    expect(engine.cells[target].state).toBe("hidden");
+    expect(engine.moves).toBe(3); // reveal + flag + unflag
+    expect(engine.undo()).toBe(true);
+    expect(engine.isFlagged(target)).toBe(true);
+  });
+
   it("loses when revealing a mine and decorates wrong flags", () => {
     const engine = new GameEngine(makeConfig());
     engine.reveal(CENTER);

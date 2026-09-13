@@ -106,6 +106,14 @@ export class GameEngine {
     return this.state.phase === "won" || this.state.phase === "lost";
   }
 
+  get autoPaused(): boolean {
+    return this.state.autoPaused;
+  }
+
+  get reason(): string | null {
+    return this.state.reason;
+  }
+
   /* ---------------------------------- events --------------------------------- */
 
   subscribe(fn: () => void): () => void {
@@ -188,6 +196,18 @@ export class GameEngine {
 
     this.pushSnapshot();
     cycleFlag(this.board!, index, this.config.questionMarks);
+    this.setState({ moves: this.state.moves + 1 });
+    this.emit();
+  }
+
+  /** Remove the flag from a flagged cell (touch: tap a flag to take it off). */
+  unflag(index: number): void {
+    if (this.phase !== "playing") return;
+    const cell = this.board?.cells[index];
+    if (!cell || cell.state !== "flagged") return;
+
+    this.pushSnapshot();
+    cell.state = "hidden";
     this.setState({ moves: this.state.moves + 1 });
     this.emit();
   }
