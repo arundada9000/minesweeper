@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { pinchTapSuppressed, boardPinch } from "./boardZoom";
 
 export interface CellGestureKind {
   /** Hidden and safe to reveal. */
@@ -76,6 +77,9 @@ export function useCellGestures(kind: CellGestureKind, events: CellGestureEvents
     }
     if (e.button !== 0) return;
 
+    // Ignore pointers that belong to an ongoing multi-touch pinch.
+    if (pinchTapSuppressed(performance.now())) return;
+
     const now = Date.now();
     stateRef.current.pointerId = e.pointerId;
     stateRef.current.startX = e.clientX;
@@ -98,12 +102,15 @@ export function useCellGestures(kind: CellGestureKind, events: CellGestureEvents
     }
 
     setPressed(true);
-    // Long-press: flag (hidden) or cycle (flagged/questioned).
+    // Long-press: flag (hidden) or cycle (flagged/questioned). A pinch that
+    // starts while the finger is down must not flag (game-logic §47).
     const timer = window.setTimeout(() => {
       stateRef.current.longTimer = 0;
       stateRef.current.longTriggered = true;
-      if (kindRef.current.canReveal) eventsRef.current.flag();
-      else if (kindRef.current.canUnflag) eventsRef.current.flag();
+      if (!boardPinch.multi) {
+        if (kindRef.current.canReveal) eventsRef.current.flag();
+        else if (kindRef.current.canUnflag) eventsRef.current.flag();
+      }
       setPressed(false);
     }, longPressRef.current);
     stateRef.current.longTimer = timer;
@@ -138,6 +145,8 @@ export function useCellGestures(kind: CellGestureKind, events: CellGestureEvents
     stateRef.current.longTriggered = false;
     setPressed(false);
 
+    // The lift that ends a pinch is not a tap.
+    if (pinchTapSuppressed(performance.now())) return;
     if (moved || longTriggered) return;
     if (kindRef.current.canChord) return; // chord timing handled on pointer down
 

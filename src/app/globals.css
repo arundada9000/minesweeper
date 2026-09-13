@@ -308,6 +308,16 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.board-grab {
+  cursor: grab;
+}
+
+.board-grab:active,
+.board-panning {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
 @keyframes cell-pop {
   0% {
     transform: scale(0.82);
