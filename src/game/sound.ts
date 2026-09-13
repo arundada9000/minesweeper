@@ -23,6 +23,24 @@ type SoundKind =
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
+let gameplayBus: GainNode | null = null;
+let uiBus: GainNode | null = null;
+
+/** Board sounds route through the gameplay bus; chrome sounds use the UI bus. */
+function busFor(kind: SoundKind): "gameplay" | "ui" {
+  switch (kind) {
+    case "reveal":
+    case "cascade":
+    case "flag":
+    case "question":
+    case "chord":
+    case "win":
+    case "lose":
+      return "gameplay";
+    default:
+      return "ui";
+  }
+}
 
 function ensureContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -31,11 +49,24 @@ function ensureContext(): AudioContext | null {
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.5;
+    gameplayBus = ctx.createGain();
+    uiBus = ctx.createGain();
+    gameplayBus.connect(master);
+    uiBus.connect(master);
     master.connect(ctx.destination);
   }
   if (ctx.state === "suspended") void ctx.resume();
+  applyVolumes();
   return ctx;
+}
+
+/** Push the current settings into the gain chain so toggles and sliders apply instantly. */
+function applyVolumes(): void {
+  if (!master || !ctx) return;
+  const s = useSettings.getState();
+  master.gain.value = s.sound ? Math.min(1, Math.max(0, s.volumeMaster)) : 0;
+  if (gameplayBus) gameplayBus.gain.value = Math.min(1, Math.max(0, s.volumeGameplay));
+  if (uiBus) uiBus.gain.value = Math.min(1, Math.max(0, s.volumeUi));
 }
 
 function tone(
@@ -67,51 +98,53 @@ export function primeAudio(): boolean {
 export function playSound(kind: SoundKind): void {
   if (!useSettings.getState().sound) return;
   const ac = ensureContext();
-  if (!ac || !master) return;
+  if (!ac) return;
+  const bus = busFor(kind) === "gameplay" ? gameplayBus : uiBus;
+  if (!bus) return;
 
   switch (kind) {
     case "reveal":
-      tone(ac, master, { freq: 520, endFreq: 900, dur: 0.05, type: "triangle", vol: 0.16 });
+      tone(ac, bus, { freq: 520, endFreq: 900, dur: 0.05, type: "triangle", vol: 0.16 });
       break;
     case "cascade":
-      tone(ac, master, { freq: 300, endFreq: 720, dur: 0.1, type: "sine", vol: 0.12 });
+      tone(ac, bus, { freq: 300, endFreq: 720, dur: 0.1, type: "sine", vol: 0.12 });
       break;
     case "flag":
-      tone(ac, master, { freq: 980, endFreq: 720, dur: 0.05, type: "triangle", vol: 0.22 });
+      tone(ac, bus, { freq: 980, endFreq: 720, dur: 0.05, type: "triangle", vol: 0.22 });
       break;
     case "question":
-      tone(ac, master, { freq: 620, endFreq: 980, dur: 0.07, type: "triangle", vol: 0.18 });
+      tone(ac, bus, { freq: 620, endFreq: 980, dur: 0.07, type: "triangle", vol: 0.18 });
       break;
     case "chord":
-      tone(ac, master, { freq: 760, endFreq: 1040, dur: 0.07, type: "triangle", vol: 0.2 });
+      tone(ac, bus, { freq: 760, endFreq: 1040, dur: 0.07, type: "triangle", vol: 0.2 });
       break;
     case "win":
-      tone(ac, master, { freq: 523, dur: 0.18, type: "triangle", vol: 0.2 });
-      tone(ac, master, { freq: 659, at: 0.1, dur: 0.2, type: "triangle", vol: 0.2 });
-      tone(ac, master, { freq: 784, at: 0.2, dur: 0.28, type: "triangle", vol: 0.2 });
+      tone(ac, bus, { freq: 523, dur: 0.18, type: "triangle", vol: 0.2 });
+      tone(ac, bus, { freq: 659, at: 0.1, dur: 0.2, type: "triangle", vol: 0.2 });
+      tone(ac, bus, { freq: 784, at: 0.2, dur: 0.28, type: "triangle", vol: 0.2 });
       break;
     case "lose":
-      tone(ac, master, { freq: 380, endFreq: 120, dur: 0.34, type: "sawtooth", vol: 0.12 });
-      tone(ac, master, { freq: 190, endFreq: 70, at: 0.16, dur: 0.4, type: "sine", vol: 0.16 });
+      tone(ac, bus, { freq: 380, endFreq: 120, dur: 0.34, type: "sawtooth", vol: 0.12 });
+      tone(ac, bus, { freq: 190, endFreq: 70, at: 0.16, dur: 0.4, type: "sine", vol: 0.16 });
       break;
     case "pause":
-      tone(ac, master, { freq: 520, endFreq: 340, dur: 0.09, type: "sine", vol: 0.16 });
+      tone(ac, bus, { freq: 520, endFreq: 340, dur: 0.09, type: "sine", vol: 0.16 });
       break;
     case "resume":
-      tone(ac, master, { freq: 340, endFreq: 560, dur: 0.09, type: "sine", vol: 0.16 });
+      tone(ac, bus, { freq: 340, endFreq: 560, dur: 0.09, type: "sine", vol: 0.16 });
       break;
     case "newgame":
-      tone(ac, master, { freq: 440, endFreq: 660, dur: 0.08, type: "triangle", vol: 0.16 });
+      tone(ac, bus, { freq: 440, endFreq: 660, dur: 0.08, type: "triangle", vol: 0.16 });
       break;
     case "click":
-      tone(ac, master, { freq: 720, endFreq: 540, dur: 0.04, type: "triangle", vol: 0.14 });
+      tone(ac, bus, { freq: 720, endFreq: 540, dur: 0.04, type: "triangle", vol: 0.14 });
       break;
     case "confirm":
-      tone(ac, master, { freq: 720, at: 0, dur: 0.08, type: "triangle", vol: 0.18 });
-      tone(ac, master, { freq: 1080, at: 0.07, dur: 0.12, type: "triangle", vol: 0.18 });
+      tone(ac, bus, { freq: 720, at: 0, dur: 0.08, type: "triangle", vol: 0.18 });
+      tone(ac, bus, { freq: 1080, at: 0.07, dur: 0.12, type: "triangle", vol: 0.18 });
       break;
     case "cancel":
-      tone(ac, master, { freq: 400, endFreq: 280, dur: 0.08, type: "sine", vol: 0.14 });
+      tone(ac, bus, { freq: 400, endFreq: 280, dur: 0.08, type: "sine", vol: 0.14 });
       break;
   }
 }

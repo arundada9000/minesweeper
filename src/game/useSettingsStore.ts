@@ -25,6 +25,12 @@ export interface Settings {
   haptics: boolean;
   autoPause: boolean;
   longPressDelayMs: number;
+  /** Master gain (0..1) on everything, including gameplay and UI buses. */
+  volumeMaster: number;
+  /** Gain (0..1) for board sounds (reveal, flag, chord, win, lose). */
+  volumeGameplay: number;
+  /** Gain (0..1) for interface sounds (clicks, confirms, pauses). */
+  volumeUi: number;
   /** First-run onboarding has been completed. */
   onboarded: boolean;
 }
@@ -40,6 +46,9 @@ export const defaultSettings: Settings = {
   haptics: true,
   autoPause: true,
   longPressDelayMs: 420,
+  volumeMaster: 0.7,
+  volumeGameplay: 1,
+  volumeUi: 1,
   onboarded: false,
 };
 

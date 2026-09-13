@@ -79,6 +79,8 @@ export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
     playSound("click");
     haptic("tap");
   };
+  const quiet = (patch: Parameters<typeof s.set>[0]) => s.set(patch);
+  const pct = (v: number) => `${Math.round(v * 100)}%`;
 
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
@@ -146,9 +148,14 @@ export function SettingsSheet({ open, onClose }: SettingsSheetProps) {
       </Section>
 
       <Section label="Feedback">
-        <Row label="Sound" hint="Key, flag, and result sounds">
+        <Row label="Sound" hint="Total on/off for every sound">
           <Switch checked={s.sound} onChange={(v) => set({ sound: v })} label="Sound" />
         </Row>
+        <div className="mt-1 flex flex-col gap-1.5">
+          <VolumeSlider label="Master" value={s.volumeMaster} display={pct(s.volumeMaster)} onChange={(v) => quiet({ volumeMaster: v })} />
+          <VolumeSlider label="Gameplay" hint="Reveals, flags, chords, results" value={s.volumeGameplay} display={pct(s.volumeGameplay)} onChange={(v) => quiet({ volumeGameplay: v })} />
+          <VolumeSlider label="UI" hint="Clicks, confirms, pauses" value={s.volumeUi} display={pct(s.volumeUi)} onChange={(v) => quiet({ volumeUi: v })} />
+        </div>
         <Row label="Haptics" hint="Tap and press vibrations">
           <Switch checked={s.haptics} onChange={(v) => set({ haptics: v })} label="Haptics" />
         </Row>
@@ -211,6 +218,33 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
         {hint && <div className="text-2xs text-ink-muted">{hint}</div>}
       </div>
       {children}
+    </div>
+  );
+}
+
+function VolumeSlider({
+  label,
+  hint,
+  value,
+  display,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  value: number;
+  display: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="rounded-2xl bg-surface-2 px-3 py-2.5">
+      <div className="mb-1.5 flex items-baseline justify-between">
+        <div>
+          <div className="text-sm font-medium text-ink">{label} volume</div>
+          {hint && <div className="text-2xs text-ink-muted">{hint}</div>}
+        </div>
+        <span className="tabular text-2xs font-semibold text-ink-soft">{display}</span>
+      </div>
+      <Slider label={`${label} volume`} value={value} min={0} max={1} step={0.05} onChange={onChange} />
     </div>
   );
 }
