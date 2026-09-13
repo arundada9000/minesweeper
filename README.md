@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SweeperMine
 
-## Getting Started
+Think clearly. Clear everything.
 
-First, run the development server:
+SweeperMine is a premium, offline-first minesweeper that runs entirely in your browser. It is a single-player logic game with teacher-built hinting, five play modes, records, achievements, and no ads. Everything is local: boards, records, and saves live in your browser, and the app keeps working with no network at all after the first visit.
+
+## Features
+
+- **Offline-first PWA** - installable (manifest + service worker), plays with no connection, self-hosted fonts and Web Audio no-frills sound engine.
+- **Five modes** - Classic, No-guess (always solvable by logic), Daily (same board for everyone, anchored seed), Rush (timed), Zen (no timer, undo always on), plus Practice (visible mines) for learning.
+- **Custom boards** - width, height, mine count, first-click safety, and question-mark toggles, all validated and clamped to the engine's browser-safe range.
+- **Solver-backed hints** - the hint system analyzes the board, teaches the deduction it found, and flags or reveals for you; hints skip the time record.
+- **Pan + pinch zoom** - large boards stay playable on small screens with ctrl/trackpad zoom on desktop and two-finger pinch on touch.
+- **Records, achievements, daily history** - corrupt-safe persistence, streak tracking, and a "no flagger" achievement for sweepers who never flag.
+- **Full accessibility** - keyboard play, reduced-motion support, system themes, and touch gestures that never misfire during panning or pinching.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Production build is a static export:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm typecheck   # tsc --noEmit
+pnpm test        # vitest run (engine + store suites)
+pnpm build       # next build (output: out/)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`node scripts/make-icons.mjs` regenerates the app icons, favicon, and social card from a dependency-free rasterizer (PNG/ICO emitted to `public/`).
 
-## Learn More
+## Playing
 
-To learn more about Next.js, take a look at the following resources:
+- **Tap** to reveal, **hold** to flag, **double-tap** a revealed number to clear around it (chord).
+- **Right-click** (desktop) flags; **middle-click** chords.
+- **Keyboard**: arrows move the cell cursor, Space reveals, F flags, Z u/undo, H hints (where allowed), R restarts, P/Esc pauses, ? opens How to play, Ctrl+K opens commands.
+- **Pan/zoom**: the board scrolls natively; ctrl + wheel (or trackpad pinch) zooms on desktop, two fingers pinch on touch. A drag that starts on the board background pans.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  engine/    rules-free game logic: board, solver, hints, presets (fully unit-tested)
+  game/      client state: game store, settings, stats, sound
+  components/ UI: game screen, HUD, overlays, sheets, primitives, cell gestures
+  app/       Next.js app router shell, metadata, manifest, sitemap, robots
+  lib/       shared site facts (SITE_URL etc.)
+rules/       design and game-logic source of truth, tracked in rules/tracker.md
+scripts/     icon generator (make-icons.mjs)
+public/      service worker, icons, social card
+```
 
-## Deploy on Vercel
+## Tech stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Next.js app router (static export), React 19, Zustand for stores, Web Audio for sound, Tailwind v4 tokens, Motion for animation, Vitest for tests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+SweeperMine is proprietary software. All rights reserved. See [LICENSE](./LICENSE). "Arun Neupane" is credited in-app in the footer watermark and the console easter egg.
+
+## Author
+
+Arun Neupane

@@ -103,7 +103,7 @@ src/
 - manifest, service worker (offline-first cache), install prompt
 - SEO/AEO/OG/GEO, sitemap, robots, 404 + error pages
 - console easter egg, footer watermark (Arun Neupane)
-- README, LICENSE (MIT), CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, .gitignore
+- README, LICENSE (proprietary per Arun's decision), CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, .gitignore
 
 ## Open decisions (ask Arun)
 

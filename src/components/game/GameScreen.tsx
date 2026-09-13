@@ -38,6 +38,7 @@ import { CommandPalette, type Command } from "../ui/CommandPalette";
 import { ContextMenuLayer, useContextMenu, type MenuItem } from "../ui/ContextMenu";
 import { ToastViewport, toast } from "../ui/Toasts";
 import { Tooltip } from "../ui/primitives";
+import { AUTHOR_NAME } from "@/lib/site";
 import { Hud } from "./Hud";
 import { BoardGrid } from "./BoardGrid";
 import { HintBanner } from "./HintBanner";
@@ -52,6 +53,11 @@ const TICK_INTERVAL_MS = 250;
 const MAX_DT_MS = 1000;
 const EMPTY_NOTICE: FinishedNotice = { recordBeaten: false, unlocked: [], unlockName: null };
 
+interface InstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 export function GameScreen() {
   const [showMode, setShowMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -62,6 +68,8 @@ export function GameScreen() {
   const [continuePrompt, setContinuePrompt] = useState(() => loadSavedRun());
   const [cursor, setCursor] = useState<number | null>(null);
   const [notice, setNotice] = useState<FinishedNotice>(EMPTY_NOTICE);
+  const [installEvt, setInstallEvt] = useState<InstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
 
   const phase = useGame((s) => s.engine.phase);
   useGame((s) => s.clockVersion);
@@ -83,6 +91,41 @@ export function GameScreen() {
       applySettingsToDocument(state);
       applyMotionMedia(state);
     });
+  }, []);
+
+  /* ------------------------ pwa, install, easter egg ---------------------------- */
+
+  useEffect(() => {
+    // Offline-first service worker; production static export only.
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+
+    const onInstall = (e: Event) => {
+      e.preventDefault();
+      setInstallEvt(e as InstallPromptEvent);
+    };
+    const onInstalled = () => {
+      setInstalled(true);
+      setInstallEvt(null);
+    };
+    window.addEventListener("beforeinstallprompt", onInstall);
+    window.addEventListener("appinstalled", onInstalled);
+    if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onInstall);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log(
+      "%cSweeperMine\n%cThink clearly. Clear everything.\nMade by %cArun Neupane%c\nTip: press ? to learn the controls.",
+      "color:#ff9500;font-weight:800;font-family:ui-monospace,monospace;font-size:14px",
+      "color:inherit",
+      "color:#ff9500;font-weight:700",
+      "color:inherit"
+    );
   }, []);
 
   /* ------------------------------- clock + autopause ---------------------------- */
@@ -604,6 +647,26 @@ export function GameScreen() {
           )}
           <span className="sm:hidden">Tap to reveal / Hold to flag / Double-tap to clear around a number</span>
           <span className="hidden lg:inline">/ Ctrl+K commands</span>
+        </div>
+
+        {installEvt && !installed && (
+          <div className="flex items-center justify-center gap-3 px-5 py-2">
+            <span className="text-2xs text-ink-muted">SweeperMine keeps playing offline.</span>
+            <button
+              type="button"
+              onClick={() => {
+                installEvt.prompt();
+                installEvt.userChoice.finally(() => setInstallEvt(null));
+              }}
+              className="press rounded-full bg-accent-soft px-4 py-1.5 text-2xs font-semibold text-accent-strong"
+            >
+              Install
+            </button>
+          </div>
+        )}
+
+        <div className="safe-bottom flex items-center justify-center gap-1 px-5 pb-3 text-2xs text-ink-muted/70">
+          Made by <span className="font-medium text-ink-soft">{AUTHOR_NAME}</span>
         </div>
       </main>
 
