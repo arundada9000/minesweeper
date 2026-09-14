@@ -18,6 +18,11 @@ const PHASE_TINT: Record<string, string> = {
   idle: "text-ink-muted",
 };
 
+export function formatMines(mines: number): string {
+  if (mines < 0) return `-${String(Math.abs(mines)).padStart(3, "0")}`;
+  return String(mines).padStart(3, "0");
+}
+
 function MiniRunStats({ engine }: { engine: GameEngine }) {
   const cfg = engine.config;
   const totalCells = cfg.width * cfg.height;
@@ -113,7 +118,7 @@ export function Hud({ onModeClick, onUndo, onRestart, onHint }: { onModeClick: (
         <div className="grid flex-1 grid-cols-[1fr_auto_1fr] items-stretch gap-1 rounded-2xl bg-surface-2/90 p-1 shadow-ios hairline backdrop-blur-md">
         <div className="flex items-center justify-start gap-1.5 rounded-xl bg-elevated px-3" aria-label={`${minesLeft} mines left`}>
           <MineIcon size={15} className="text-accent" />
-          <span className="font-mono text-lg font-bold tabular text-ink">{String(minesLeft).padStart(3, "0")}</span>
+          <span className="font-mono text-lg font-bold tabular text-ink">{formatMines(minesLeft)}</span>
         </div>
 
         <div className="flex items-center gap-0.5">

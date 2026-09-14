@@ -34,3 +34,13 @@ export function pointerLeftBoard(): void {
 export function pinchTapSuppressed(now: number): boolean {
   return boardPinch.multi || now < boardPinch.suppressUntil;
 }
+
+/** Forget all pointer bookkeeping when a fresh board starts (restart, new
+ *  game, continue). A leaked count never recovers on its own — every new tap
+ *  adds one more down/up, keeping it at >= 2 forever — which would otherwise
+ *  suppress all left-click/tap reveals on the next run. */
+export function resetBoardPinch(): void {
+  pointers.count = 0;
+  boardPinch.multi = false;
+  boardPinch.suppressUntil = 0;
+}

@@ -147,6 +147,8 @@ interface GameStore {
   clockVersion: number;
   /** Bumped only when the board's cells changed. */
   boardVersion: number;
+  /** Bumped only when a fresh run starts (new game, restart, continue). */
+  runId: number;
   /** Indices disclosed by the last reveal/chord, for stagger animation. */
   lastReveal: readonly number[];
   hasSavedRun: boolean;
@@ -202,6 +204,7 @@ export const useGame = create<GameStore>()((set, get) => {
     engine: new GameEngine(buildConfig("classic", "beginner", CUSTOM_DEFAULTS)),
     clockVersion: 0,
     boardVersion: 0,
+    runId: 0,
     lastReveal: [],
     hasSavedRun: loadSavedRun() !== null,
     hint: null,
@@ -220,6 +223,7 @@ export const useGame = create<GameStore>()((set, get) => {
         rows: config.height,
         clockVersion: 0,
         boardVersion: 0,
+        runId: get().runId + 1,
         lastReveal: [],
         hasSavedRun: false,
         hint: null,
@@ -230,7 +234,7 @@ export const useGame = create<GameStore>()((set, get) => {
       const { engine, mode, preset, custom } = get();
       prevSignature = signatureOf(engine);
       engine.restart();
-      set({ lastReveal: [], boardVersion: get().boardVersion + 1, hint: null });
+      set({ lastReveal: [], boardVersion: get().boardVersion + 1, runId: get().runId + 1, hint: null });
     },
 
     continueSaved: () => {
@@ -250,6 +254,7 @@ export const useGame = create<GameStore>()((set, get) => {
         rows: config.height,
         clockVersion: 0,
         boardVersion: 0,
+        runId: get().runId + 1,
         lastReveal: [],
         hasSavedRun: false,
         hint: null,

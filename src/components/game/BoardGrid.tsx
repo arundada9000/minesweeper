@@ -15,7 +15,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useGame } from "@/game/useGameStore";
 import { playSound, haptic } from "@/game/sound";
 import { Cell } from "./Cell";
-import { pointerDownOnBoard, pointerLeftBoard } from "./boardZoom";
+import { pointerDownOnBoard, pointerLeftBoard, resetBoardPinch } from "./boardZoom";
 
 const MIN_CELL = 34;
 const MAX_CELL = 76;
@@ -31,11 +31,12 @@ function gapFor(cell: number): number {
 }
 
 export function BoardGrid({ cursor }: { cursor: number | null }) {
-  const { cols, rows, version, lastReveal, hint } = useGame(
+  const { cols, rows, version, runId, lastReveal, hint } = useGame(
     useShallow((s) => ({
       cols: s.cols,
       rows: s.rows,
       version: s.boardVersion,
+      runId: s.runId,
       lastReveal: s.lastReveal,
       hint: s.hint,
     }))
@@ -160,13 +161,16 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  // A new board starts at 1x.
+  // A fresh run (new board size, restart, or resumed game) starts at 1x with
+  // clean multi-touch state. Keyed to runId, not boardVersion, so per-move
+  // updates never reset the zoom the player chose.
   useEffect(() => {
     zoomRef.current = MIN_ZOOM;
     setZoom(MIN_ZOOM);
     pinchRef.current.active = false;
     pointersRef.current.clear();
-  }, [cols, rows, version]);
+    resetBoardPinch();
+  }, [cols, rows, runId]);
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -196,7 +200,15 @@ export function BoardGrid({ cursor }: { cursor: number | null }) {
     // the abandoned-board flow: the engine generates the board and opens at
     // the tapped cell on the very first reveal.
     return (
-      <div ref={scrollerRef} className="mines-scroll h-full w-full overflow-auto rounded-2xl">
+      <div
+        ref={scrollerRef}
+        className="mines-scroll h-full w-full overflow-auto rounded-2xl"
+        style={{ touchAction: "pan-x pan-y" }}
+        onPointerDown={onScrollerPointerDown}
+        onPointerMove={onScrollerPointerMove}
+        onPointerUp={onScrollerPointerEnd}
+        onPointerCancel={onScrollerPointerEnd}
+      >
         <div className="flex min-h-full w-full flex-col">
         <div
           className="mines-grid m-auto p-4"
