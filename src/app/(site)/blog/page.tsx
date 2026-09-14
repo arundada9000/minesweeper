@@ -2,19 +2,49 @@ import { allPosts } from "@/lib/posts";
 import { ArticleCard } from "@/components/content/ArticleCard";
 import { AdSlot } from "@/components/site/AdSlot";
 import { Reveal } from "@/components/site/Reveal";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { ContourField } from "@/components/site/map";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Minesweeper Guides, Strategies, and History",
   description:
     "Field notes from Easy Minesweeper: learn the rules, master the patterns, understand scoring, and go from a first win to a sub-minute expert clear.",
-  alternates: { canonical: "https://easyminesweeper.vercel.app/blog/" },
+  alternates: { canonical: `${SITE_URL}/blog/` },
+  openGraph: {
+    type: "website",
+    title: "Minesweeper Guides, Strategies, and History",
+    description:
+      "Field notes from Easy Minesweeper: learn the rules, master the patterns, understand scoring, and go from a first win to a sub-minute expert clear.",
+    siteName: SITE_NAME,
+    images: [`${SITE_URL}/og.png`],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Minesweeper Guides, Strategies, and History",
+    description:
+      "Field notes from Easy Minesweeper: learn the rules, master the patterns, understand scoring, and go from a first win to a sub-minute expert clear.",
+    images: [`${SITE_URL}/og.png`],
+  },
 };
 
 export default function BlogIndexPage() {
   const posts = allPosts();
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-24 pt-12 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Guides", item: `${SITE_URL}/blog/` },
+            ],
+          }),
+        }}
+      />
       <div className="relative">
         <div className="pointer-events-none absolute -top-8 -left-16 opacity-70">
           <ContourField size={420} />

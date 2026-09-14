@@ -23,7 +23,7 @@ export async function generateMetadata({
     title: `${post.title} | Easy Minesweeper`,
     description: post.description,
     alternates: {
-      canonical: `https://easyminesweeper.vercel.app/blog/${post.slug}/`,
+      canonical: `${SITE_URL}/blog/${post.slug}/`,
     },
     openGraph: {
       type: "article",
@@ -31,11 +31,13 @@ export async function generateMetadata({
       description: post.description,
       publishedTime: post.date,
       siteName: "Easy Minesweeper",
+      images: [{ url: `/og/${post.slug}.png`, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: post.title,
       description: post.description,
+      images: [`/og/${post.slug}.png`],
     },
   };
 }
@@ -45,6 +47,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const post = getPost(slug);
   if (!post) notFound();
   const related = relatedPosts(post.slug);
+  const wordCount = post.body.split(/\s+/).filter(Boolean).length;
   return (
     <div className="relative">
       <script
@@ -56,9 +59,32 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             headline: post.title,
             description: post.description,
             datePublished: post.date,
+            dateModified: post.date,
+            inLanguage: "en-US",
+            wordCount,
+            image: `${SITE_URL}/og/${post.slug}.png`,
             author: { "@type": "Person", name: AUTHOR_NAME },
-            publisher: { "@type": "Organization", name: SITE_NAME },
-            mainEntityOfPage: `${SITE_URL}/blog/${post.slug}/`,
+            publisher: {
+              "@type": "Organization",
+              name: SITE_NAME,
+              logo: { "@type": "ImageObject", url: `${SITE_URL}/icon-192.png` },
+            },
+            mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/blog/${post.slug}/` },
+            isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Guides", item: `${SITE_URL}/blog/` },
+              { "@type": "ListItem", position: 3, name: post.title },
+            ],
           }),
         }}
       />

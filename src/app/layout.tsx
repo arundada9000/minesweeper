@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   category: "games",
   keywords: ["minesweeper", "puzzle", "game", "offline", "pwa", "mines", "logic puzzle", "daily puzzle", "no-guess minesweeper"],
   manifest: "/manifest.webmanifest",
+  icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png", shortcut: "/favicon.ico" },
   openGraph: {
     type: "website",
     url: "/",
@@ -68,6 +69,8 @@ export default function Home({ children }: { children: ReactNode }) {
               browserRequirements: "Requires a modern web browser",
               offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
               creator: { "@type": "Person", name: AUTHOR_NAME, url: AUTHOR_URL },
+              screenshot: `${SITE_URL}/og.png`,
+              softwareVersion: "1.0.0",
             }),
           }}
         />

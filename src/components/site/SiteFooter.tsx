@@ -61,7 +61,7 @@ export function SiteFooter() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   title={label}
-                  className="group/soc grid size-9 place-items-center rounded-full border border-line/70 bg-surface-2 text-ink-soft transition-all duration-200 ease-touch hover:-translate-y-0.5 hover:border-transparent hover:bg-accent hover:text-on-accent hover:shadow-ios focus-visible:outline-none"
+                  className="group/soc grid size-11 place-items-center rounded-full border border-line/70 bg-surface-2 text-ink-soft transition-all duration-200 ease-touch hover:-translate-y-0.5 hover:border-transparent hover:bg-accent hover:text-on-accent hover:shadow-ios focus-visible:outline-none"
                 >
                   <Icon
                     size={16}
@@ -77,10 +77,10 @@ export function SiteFooter() {
               <GraduationIcon size={14} />
               Popular guides
             </h2>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-4 space-y-1">
               {top.map((post) => (
                 <li key={post.slug}>
-                  <Link href={`/blog/${post.slug}`} className="group inline-flex items-baseline gap-2 text-sm text-ink-soft transition-colors hover:text-ink">
+                  <Link href={`/blog/${post.slug}`} className="group flex min-h-11 items-center gap-2 text-sm text-ink-soft transition-colors hover:text-ink">
                     <span className="h-px w-3 self-center bg-line-strong/60 transition-[width] duration-200 group-hover:w-5 group-hover:bg-accent" />
                     {post.title}
                   </Link>
@@ -94,10 +94,10 @@ export function SiteFooter() {
               <GridIcon size={14} />
               Site
             </h2>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-4 space-y-1">
               {SITE_LINKS.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="group inline-flex items-center gap-2 text-sm text-ink-soft transition-colors hover:text-ink">
+                  <Link href={link.href} className="group flex min-h-11 items-center gap-2 text-sm text-ink-soft transition-colors hover:text-ink">
                     <span className="h-px w-3 self-center bg-line-strong/60 transition-[width] duration-200 group-hover:w-5 group-hover:bg-accent" />
                     {link.label}
                   </Link>

@@ -51,7 +51,7 @@ export function SiteHeader() {
               <Link
                 key={href}
                 href={href}
-                className={`relative rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`relative inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm transition-colors ${
                   active ? "text-ink" : "text-ink-soft hover:text-ink"
                 } after:absolute after:inset-x-3 after:-bottom-0.5 after:h-[2px] after:origin-left after:rounded-full after:bg-accent after:transition-transform after:duration-300 ease-touch ${
                   active ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"
@@ -63,7 +63,7 @@ export function SiteHeader() {
           })}
           <Link
             href="/play"
-            className="press group/play hidden h-9 items-center gap-1.5 rounded-full bg-accent pl-4 pr-2.5 text-sm font-semibold text-on-accent shadow-ios transition-shadow hover:opacity-95 sm:inline-flex"
+            className="press group/play hidden h-11 items-center gap-1.5 rounded-full bg-accent pl-4 pr-2.5 text-sm font-semibold text-on-accent shadow-ios transition-shadow hover:opacity-95 sm:inline-flex"
           >
             Play
             <span className="grid size-5 place-items-center rounded-full bg-white/15 transition-transform duration-200 group-hover/play:translate-x-0.5">
@@ -73,7 +73,7 @@ export function SiteHeader() {
           <Link
             href="/play"
             aria-label="Play the game"
-            className="press grid size-9 place-items-center rounded-full bg-accent text-on-accent shadow-ios sm:hidden"
+            className="press grid size-11 place-items-center rounded-full bg-accent text-on-accent shadow-ios sm:hidden"
           >
             <PlayIcon size={15} />
           </Link>

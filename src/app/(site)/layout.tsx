@@ -9,7 +9,7 @@ import { BackToTop } from "@/components/site/BackToTop";
  */
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-canvas">
+    <div className="flex min-h-dvh flex-col bg-canvas pb-[env(safe-area-inset-bottom)]">
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />

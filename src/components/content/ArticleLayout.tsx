@@ -1,23 +1,24 @@
 import Link from "next/link";
 import type { Post } from "@/content/posts";
 import { formatDate } from "@/lib/posts";
-import { Markdown } from "./Markdown";
+import { Markdown, firstParagraph } from "./Markdown";
 import { ArticleCard } from "./ArticleCard";
 import { Reveal } from "@/components/site/Reveal";
 import { PlayIcon, ArrowRightIcon } from "@/components/ui/icons";
 
 export function ArticleLayout({ post, related }: { post: Post; related: Post[] }) {
+  const quickAnswer = firstParagraph(post.body);
   return (
-    <article className="mx-auto w-full max-w-3xl px-5 pb-20 pt-10 sm:px-6">
+    <article className="mx-auto w-full max-w-3xl px-5 pb-20 pt-[calc(var(--spacing)*10+env(safe-area-inset-top))] sm:px-6">
       <Reveal onMount>
-        <nav aria-label="Breadcrumb" className="mb-6 text-xs text-ink-muted">
-          <Link href="/blog" className="transition-colors hover:text-ink">
+        <nav aria-label="Breadcrumb" className="mb-6 flex min-h-11 items-center gap-2 text-xs text-ink-muted">
+          <Link href="/blog" className="inline-flex min-h-11 items-center rounded-lg transition-colors hover:text-ink">
             Guides
           </Link>
-          <span className="mx-2" aria-hidden>
-            /
+          <span aria-hidden className="select-none text-ink-muted">
+            ›
           </span>
-          <span className="text-ink-soft">{post.title}</span>
+          <span className="truncate text-ink-soft">{post.title}</span>
         </nav>
 
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
@@ -43,6 +44,12 @@ export function ArticleLayout({ post, related }: { post: Post; related: Post[] }
       </Reveal>
 
       <Reveal y={16} className="mt-8">
+        {quickAnswer && (
+          <div className="mb-8 rounded-2xl border border-accent/20 bg-accent-soft/30 p-5 sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Quick answer</p>
+            <p className="mt-2 text-[15px] leading-7 text-ink">{quickAnswer}</p>
+          </div>
+        )}
         <Markdown body={post.body} />
       </Reveal>
 

@@ -148,6 +148,12 @@ function parseBlocks(body: string): Block[] {
   return blocks;
 }
 
+export function firstParagraph(body: string): string {
+  const blocks = parseBlocks(body);
+  const first = blocks.find((b) => b.kind === "p");
+  return first ? first.text : "";
+}
+
 export function Markdown({ body }: { body: string }) {
   const blocks = parseBlocks(body);
   return (

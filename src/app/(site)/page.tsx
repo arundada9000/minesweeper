@@ -9,6 +9,7 @@ import { CountUp } from "@/components/site/CountUp";
 import { CellWell, ContourField } from "@/components/site/map";
 import { PlayIcon, ArrowRightIcon, LightbulbIcon, EyeIcon, LeafIcon, GridIcon, GraduationIcon, CalendarIcon, ZapIcon } from "@/components/ui/icons";
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Easy Minesweeper",
@@ -83,6 +84,18 @@ export default function LandingPage() {
   const posts = allPosts();
   return (
     <div className="relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+            ],
+          }),
+        }}
+      />
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <ContourField size={960} />
@@ -98,7 +111,7 @@ export default function LandingPage() {
           </Reveal>
 
           <Reveal onMount delay={0.08}>
-            <h1 className="mt-6 font-display text-[2.6rem] font-bold leading-[1.04] tracking-tight text-ink sm:text-6xl">
+            <h1 className="fluid-display mt-6 font-display font-bold text-ink">
               Think clearly.
               <br />
               Clear everything.
@@ -180,7 +193,7 @@ export default function LandingPage() {
                     <p className="text-sm leading-relaxed text-ink-soft">{feature.body}</p>
                     <Link
                       href={feature.href}
-                      className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-accent transition-colors hover:text-accent-strong"
+                      className="mt-auto inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent transition-colors hover:text-accent-strong"
                     >
                       {feature.link}
                       <ArrowRightIcon
@@ -281,7 +294,7 @@ export default function LandingPage() {
                 <CellWell value={4} />
                 <p className="text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">Install it in one tap</p>
               </div>
-              <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+              <h2 className="fluid-display mt-4 font-display font-bold tracking-tight text-ink">
                 Built for real devices, not just browsers
               </h2>
               <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-soft">
