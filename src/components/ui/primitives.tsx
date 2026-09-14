@@ -217,7 +217,7 @@ export function Slider({ value, min, max, step, onChange, label }: SliderProps) 
         const delta = e.key === "ArrowRight" || e.key === "ArrowUp" ? step : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -step : 0;
         if (delta) {
           e.preventDefault();
-          onChange(Math.min(max, Math.max(min, value + delta)));
+          onChange(Math.min(max, Math.max(min, Math.round((value + delta) / step) * step)));
         }
       }}
       className="press no-select relative h-8 w-full touch-none rounded-full outline-none"

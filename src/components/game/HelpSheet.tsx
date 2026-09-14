@@ -20,7 +20,7 @@ function Row({ keys, label }: { keys: string; label: string }) {
 export function HelpSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const mode = useGame((s) => s.mode);
   const def = getMode(mode);
-  const questionAllowed = useGame.getState().engine.config.questionMarks;
+  const questionAllowed = useGame((s) => s.engine.config.questionMarks);
   const undoLine = def.undoAllowed
     ? "Zen and No Guess let you undo a move after it is made."
     : "Classic, Daily, and Rush do not allow undo.";

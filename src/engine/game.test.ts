@@ -224,6 +224,39 @@ describe("GameEngine lifecycle", () => {
     expect(mineMapC).not.toEqual(mineMapA);
   });
 
+  it("Daily first click is safe from anywhere and always opens the fixed center", () => {
+    for (const first of [0, 8, 72, 80, 30, 3, 60]) {
+      const engine = new GameEngine(makeConfig({ noGuess: true, openAt: "center", seed: "daily-regression" }));
+      const result = engine.reveal(first);
+      expect(result?.phase).not.toBe("lost");
+      expect(engine.cells[40].state).toBe("revealed");
+    }
+  });
+
+  it("counts wrong-flag placements only on safe cells and restores them on undo", () => {
+    const engine = new GameEngine(makeConfig({ questionMarks: false }));
+    engine.reveal(CENTER);
+    const mineIdx = engine.cells.find((c) => c.isMine)!.index;
+    const safeIdx = engine.cells.find((c) => !c.isMine && c.state === "hidden")!.index;
+    engine.cycleFlag(mineIdx);
+    expect(engine.wrongFlagPlacements).toBe(0); // correct flag on a mine
+    engine.cycleFlag(safeIdx);
+    expect(engine.wrongFlagPlacements).toBe(1); // wrong flag on a safe cell
+    engine.unflag(safeIdx);
+    expect(engine.wrongFlagPlacements).toBe(1); // survives unflagging
+
+    const restored = new GameEngine(makeConfig({ questionMarks: false }));
+    restored.hydrate(engine.serialize());
+    expect(restored.wrongFlagPlacements).toBe(1); // survives continue-game
+
+    engine.undo();
+    expect(engine.wrongFlagPlacements).toBe(1); // back to the flagged state
+    engine.undo();
+    expect(engine.wrongFlagPlacements).toBe(0); // flag placement undone
+    engine.undo();
+    expect(engine.wrongFlagPlacements).toBe(0);
+  });
+
   it("Rush loses when the countdown expires and caps the clock", () => {
     const engine = new GameEngine(makeConfig({ timeLimitMs: 1000 }));
     engine.reveal(CENTER);

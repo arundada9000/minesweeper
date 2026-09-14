@@ -63,7 +63,7 @@ export const useStats = create<StatsState>()((set, get) => ({
 
   outcomeFor: (engine, mode, bucket) => {
     const won = engine.phase === "won";
-    const wrongFlags = engine.cells.filter((c) => c.state === "flagged" && !c.isMine).length;
+    const wrongFlags = engine.wrongFlagPlacements;
     const modeDef = getMode(mode);
     const limit = engine.timeLimitMs;
     let score: number | null = null;

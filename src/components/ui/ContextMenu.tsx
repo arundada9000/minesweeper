@@ -41,8 +41,12 @@ export function ContextMenuLayer() {
     return () => window.removeEventListener("keydown", onKey);
   }, [menu]);
 
-  const x = menu ? Math.min(menu.x, Math.max(8, (typeof window !== "undefined" ? window.innerWidth : 400) - 208)) : 0;
-  const y = menu ? Math.min(menu.y, Math.max(8, (typeof window !== "undefined" ? window.innerHeight : 600) - 48 * menu.items.length - 16)) : 0;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 600;
+  const panelW = 208;
+  const panelH = menu ? Math.min(48 * menu.items.length, vh - 8) : 0;
+  const x = menu ? Math.min(Math.max(8, menu.x), Math.max(8, vw - panelW - 8)) : 0;
+  const y = menu ? Math.min(Math.max(8, menu.y), Math.max(8, vh - 8 - panelH)) : 0;
 
   return (
     <AnimatePresence>
@@ -64,7 +68,7 @@ export function ContextMenuLayer() {
             exit={{ opacity: 0, scale: 0.97, y: -2 }}
             transition={{ duration: 0.12, ease: "easeOut" }}
             style={{ left: x, top: y }}
-            className="fixed z-context min-w-52 rounded-2xl bg-elevated p-1.5 shadow-ios-lg hairline"
+            className="fixed z-context max-h-[calc(100vh-1rem)] min-w-52 overflow-y-auto rounded-2xl bg-elevated p-1.5 shadow-ios-lg hairline"
           >
             {menu.items.map((item) => (
               <button

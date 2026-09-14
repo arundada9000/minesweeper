@@ -152,7 +152,9 @@ export interface RunOutcome {
   mineCount: number;
   cellsRevealed: number;
   flagsPlaced: number;
-  /** Cells flagged at the end that were not mines. */
+  /** Wrong-flag placements during the run (a flag on a hidden non-mine cell).
+   *  Survives unflagging and undo, so Perfect Run means the run was never
+   *  wrong — not just that no wrong flags remained at the finish. */
   wrongFlags: number;
   /** Solver hints requested during the run. Competitive runs with any hint
    *  keep counting toward totals and achievements, but never set a record. */

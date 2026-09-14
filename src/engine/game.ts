@@ -34,6 +34,10 @@ export interface EngineState {
   /** Number of times a flag has been placed this run (prevents undo-cheating
    *  for No-Flagger-style outcomes). */
   flagsPlaced: number;
+  /** Number of times a flag was placed on a hidden non-mine cell. Unlike the
+   *  finished-board "wrongFlags" decoration, this survives unflagging and undo,
+   *  so Perfect Run means the run was never wrong, not just that none remain. */
+  wrongFlagPlacements: number;
   /** Number of solver hints requested this run. Records are suppressed in
    *  competitive modes once this goes above zero. */
   hintsUsed: number;
@@ -48,6 +52,7 @@ interface HistoryEntry {
   moves: number;
   revealedSafeCount: number;
   flagsPlaced: number;
+  wrongFlagPlacements: number;
 }
 
 const AUTO_PAUSE_REASON = "You paused because the window lost focus.";
@@ -69,6 +74,7 @@ export class GameEngine {
       moves: 0,
       revealedSafeCount: 0,
       flagsPlaced: 0,
+      wrongFlagPlacements: 0,
       hintsUsed: 0,
       autoPaused: false,
       reason: null,
@@ -103,6 +109,11 @@ export class GameEngine {
 
   get flagsPlaced(): number {
     return this.state.flagsPlaced;
+  }
+
+  /** Wrong-flag placements this run (a flag put on a hidden non-mine cell). */
+  get wrongFlagPlacements(): number {
+    return this.state.wrongFlagPlacements;
   }
 
   /** Flags currently on the board (excludes flags removed by unflag/cycle). */
@@ -179,7 +190,15 @@ export class GameEngine {
     let explode: number | null = null;
     let revealed: number[] = [];
 
-    if (firstReveal) this.generateBoardAt(index);
+    if (firstReveal) {
+      this.generateBoardAt(index);
+      // Center-anchored boards (Daily) share one deterministic layout, so the
+      // fixed opening is what is safe — not the clicked cell. First reveal from
+      // the center guarantees no first-click loss regardless of where the tap is.
+      if ((this.config.openAt ?? "click") === "center") {
+        index = centerIndex(this.config.width, this.config.height);
+      }
+    }
     this.pushSnapshot();
 
     const result = floodReveal(this.board!, this.config, index, ++this.seq);
@@ -233,6 +252,9 @@ export class GameEngine {
     cycleFlag(this.board!, index, this.config.questionMarks);
     if (this.board!.cells[index].state === "flagged") {
       this.setState({ flagsPlaced: this.state.flagsPlaced + 1 });
+      if (!this.board!.cells[index].isMine) {
+        this.setState({ wrongFlagPlacements: this.state.wrongFlagPlacements + 1 });
+      }
     }
     this.setState({ moves: this.state.moves + 1 });
     this.emit();
@@ -276,6 +298,7 @@ export class GameEngine {
       moves: prev.moves,
       revealedSafeCount: prev.revealedSafeCount,
       flagsPlaced: prev.flagsPlaced,
+      wrongFlagPlacements: prev.wrongFlagPlacements,
     };
     this.emit();
     return true;
@@ -292,6 +315,7 @@ export class GameEngine {
       moves: 0,
       revealedSafeCount: 0,
       flagsPlaced: 0,
+      wrongFlagPlacements: 0,
       hintsUsed: 0,
       autoPaused: false,
       reason: null,
@@ -343,6 +367,7 @@ export class GameEngine {
       moves: this.state.moves,
       revealedSafeCount: this.state.revealedSafeCount,
       flagsPlaced: this.state.flagsPlaced,
+      wrongFlagPlacements: this.state.wrongFlagPlacements,
       hintsUsed: this.state.hintsUsed,
       seq: this.seq,
       board: this.board ? { cells: this.board.cells, width: this.board.width, height: this.board.height, mineCount: this.board.mineCount, safeCount: this.board.safeCount, generatedFor: this.board.generatedFor } : null,
@@ -358,6 +383,7 @@ export class GameEngine {
       moves: number;
       revealedSafeCount: number;
       flagsPlaced?: number;
+      wrongFlagPlacements?: number;
       hintsUsed?: number;
       seq: number;
       board: unknown;
@@ -375,6 +401,7 @@ export class GameEngine {
       moves: parsed.moves ?? 0,
       revealedSafeCount: parsed.revealedSafeCount ?? 0,
       flagsPlaced: parsed.flagsPlaced ?? 0,
+      wrongFlagPlacements: parsed.wrongFlagPlacements ?? 0,
       hintsUsed: parsed.hintsUsed ?? 0,
       autoPaused: false,
       reason: parsed.phase === "paused" ? "Paused" : null,
@@ -485,6 +512,7 @@ export class GameEngine {
       moves: this.state.moves,
       revealedSafeCount: this.state.revealedSafeCount,
       flagsPlaced: this.state.flagsPlaced,
+      wrongFlagPlacements: this.state.wrongFlagPlacements,
     });
   }
 
@@ -532,6 +560,10 @@ export class GameEngine {
   private setState(patch: Partial<EngineState>): void {
     this.state = { ...this.state, ...patch };
   }
+}
+
+function centerIndex(width: number, height: number): number {
+  return Math.floor(height / 2) * width + Math.floor(width / 2);
 }
 
 function cloneBoard(board: Board): Board {

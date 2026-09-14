@@ -108,11 +108,16 @@ export function OnboardingOverlay() {
 
         <div className="mb-5 flex items-center gap-2" role="tablist" aria-label="Introduction steps">
           {STEPS.map((_, i) => (
-            <div
+            <button
               key={i}
+              type="button"
               role="tab"
               aria-selected={i === step}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${i === step ? "bg-accent" : "bg-track"}`}
+              aria-label={`Go to step ${i + 1}`}
+              onClick={() => setStep(i)}
+              className={`h-1.5 flex-1 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                i === step ? "bg-accent" : "bg-track hover:bg-ink-muted/40"
+              }`}
             />
           ))}
         </div>
