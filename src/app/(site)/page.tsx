@@ -6,7 +6,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { FieldChart } from "@/components/site/FieldChart";
 import { InstallButton } from "@/components/site/InstallButton";
 import { CountUp } from "@/components/site/CountUp";
-import { CellWell, ContourField, MapLegend } from "@/components/site/map";
+import { CellWell, ContourField } from "@/components/site/map";
 import { PlayIcon, ArrowRightIcon, LightbulbIcon, EyeIcon, LeafIcon, GridIcon, GraduationIcon, CalendarIcon, ZapIcon } from "@/components/ui/icons";
 import type { Metadata } from "next";
 
@@ -89,7 +89,8 @@ export default function LandingPage() {
         </div>
 
         <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 pt-16 pb-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pt-24">
-          <Reveal onMount>
+          <div>
+            <Reveal onMount>
             <p className="inline-flex items-center gap-2 rounded-full border border-line/60 bg-surface-2/70 px-3 py-1 text-2xs font-bold uppercase tracking-[0.16em] text-ink-muted">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-flag" />
               Easy Minesweeper / the field map
@@ -129,10 +130,6 @@ export default function LandingPage() {
               <InstallButton variant="solid" className="sm:self-stretch" />
             </div>
 
-            <div className="mt-10">
-              <MapLegend />
-            </div>
-
             <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
               <div className="flex items-baseline gap-2">
                 <CountUp value={16} className="font-display text-2xl font-bold text-ink" />
@@ -148,17 +145,11 @@ export default function LandingPage() {
               </div>
             </div>
           </Reveal>
+          </div>
 
           <Reveal onMount delay={0.24}>
-            <div className="relative" aria-hidden>
-              <div className="relative rounded-2xl border border-line/70 bg-surface/70 p-4 shadow-ios-lg backdrop-blur-sm">
-                <div className="mb-3 flex items-center justify-between text-2xs font-mono text-ink-muted">
-                  <span>FIELD 16x12</span>
-                  <span>40 MINES / CLEARED</span>
-                  <span>3BV 78</span>
-                </div>
-                <FieldChart rows={FIELD_ROWS} />
-              </div>
+            <div aria-hidden>
+              <FieldChart rows={FIELD_ROWS} />
             </div>
           </Reveal>
         </div>

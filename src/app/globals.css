@@ -106,15 +106,7 @@
   --duration-spring: var(--dur-spring);
   --duration-slow: var(--dur-slow);
 
-  /* z-index */
-  --z-sticky: var(--z-sticky);
-  --z-header: var(--z-header);
-  --z-overlay: var(--z-overlay);
-  --z-modal: var(--z-modal);
-  --z-context: var(--z-context);
-  --z-palette: var(--z-palette);
-  --z-toast: var(--z-toast);
-}
+  }
 
 /* ===========================================================
    Base
@@ -222,6 +214,36 @@
 /* ===========================================================
    Utilities
    =========================================================== */
+/* Tailwind v4 does not derive z-* utilities from --z-* theme
+   variables, so the z-scale is explicit. */
+@utility z-sticky {
+  z-index: var(--z-sticky);
+}
+
+@utility z-header {
+  z-index: var(--z-header);
+}
+
+@utility z-overlay {
+  z-index: var(--z-overlay);
+}
+
+@utility z-modal {
+  z-index: var(--z-modal);
+}
+
+@utility z-context {
+  z-index: var(--z-context);
+}
+
+@utility z-palette {
+  z-index: var(--z-palette);
+}
+
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+
 @utility glass {
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -497,7 +519,54 @@
 }
 
 .cell-peek {
-  animation: cell-peek 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: cell-peek 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Gentle, endless breathing of a cleared number glyph. */
+@keyframes num-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+.board-num {
+  animation: num-breathe 7s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* A soft beam slowly sweeps the cleared field, like reading it line by line. */
+@keyframes board-sweep {
+  0% {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  55% {
+    transform: translateX(330%);
+    opacity: 1;
+  }
+  70%,
+  100% {
+    transform: translateX(330%);
+    opacity: 0;
+  }
+}
+
+.board-sweep {
+  animation: board-sweep 9s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 14%, transparent),
+    transparent
+  );
+  filter: blur(6px);
 }
 
 /* ---------- Reduced motion ---------- */
