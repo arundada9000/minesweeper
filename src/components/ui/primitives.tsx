@@ -304,9 +304,10 @@ export function Sheet({ open, onClose, title, children, role = "dialog" }: Sheet
 /* --------------------------------- Helpers -------------------------------- */
 
 export function formatClock(ms: number): string {
-  const totalSeconds = Math.min(999, Math.floor(ms / 1000));
-  const padded = String(totalSeconds).padStart(3, "0");
-  return `${padded.slice(0, -2)}:${padded.slice(-2)}`;
+  const totalSeconds = Math.min(5999, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 
 export function useReducedMotion(): boolean {
