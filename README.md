@@ -29,7 +29,7 @@ pnpm test        # vitest run (engine + store suites)
 pnpm build       # next build (output: out/)
 ```
 
-`node scripts/make-icons.mjs` regenerates the app icons, favicon, and social card from a dependency-free rasterizer (PNG/ICO emitted to `public/`).
+`node scripts/make-icons.mjs` regenerates the app icons, favicon, and social card from a dependency-free rasterizer (PNG/ICO emitted to `public/`). `node scripts/make-og.mjs` then composites the developer watermark onto the 1200x630 share cards (`public/og.png` + every `public/og/<slug>.png`).
 
 `pnpm build && node scripts/screenshots.mjs` regenerates the desktop/mobile screenshots below (serves the `out/` export locally and drives Chromium via Playwright).
 
@@ -50,7 +50,7 @@ src/
   app/       Next.js app router shell, metadata, manifest, sitemap, robots
   lib/       shared site facts (SITE_URL etc.)
 rules/       design and game-logic source of truth, tracked in rules/tracker.md
-scripts/     icon generator (make-icons.mjs), screenshot capture (screenshots.mjs)
+scripts/     icon generator (make-icons.mjs), OG watermark (make-og.mjs), screenshot capture (screenshots.mjs)
 public/      service worker, icons, social card, sitemap, robots.txt, llms.txt
 screenshots/ desktop + mobile captures for this README
 ```

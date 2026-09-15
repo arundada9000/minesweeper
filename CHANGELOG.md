@@ -12,6 +12,7 @@ semantic-version to the plan in `rules/plan.md`.
 - `public/llms.txt` so LLM crawlers and AI answer engines can find and cite the site (GEO).
 - Per-route metadata for `/play`: canonical, title, description, Open Graph, and Twitter card.
 - Visible developer credit on the game screen, alongside the footer watermark and console easter egg.
+- Developer watermark ("by Arun Neupane") on the social share cards, rendered by `scripts/make-og.mjs`.
 
 ### Fixed
 
