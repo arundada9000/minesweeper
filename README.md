@@ -31,6 +31,8 @@ pnpm build       # next build (output: out/)
 
 `node scripts/make-icons.mjs` regenerates the app icons, favicon, and social card from a dependency-free rasterizer (PNG/ICO emitted to `public/`).
 
+`pnpm build && node scripts/screenshots.mjs` regenerates the desktop/mobile screenshots below (serves the `out/` export locally and drives Chromium via Playwright).
+
 ## Playing
 
 - **Tap** to reveal, **hold** to flag, **double-tap** a revealed number to clear around it (chord).
@@ -48,13 +50,60 @@ src/
   app/       Next.js app router shell, metadata, manifest, sitemap, robots
   lib/       shared site facts (SITE_URL etc.)
 rules/       design and game-logic source of truth, tracked in rules/tracker.md
-scripts/     icon generator (make-icons.mjs)
-public/      service worker, icons, social card
+scripts/     icon generator (make-icons.mjs), screenshot capture (screenshots.mjs)
+public/      service worker, icons, social card, sitemap, robots.txt, llms.txt
+screenshots/ desktop + mobile captures for this README
 ```
 
 ## Tech stack
 
 Next.js app router (static export), React 19, Zustand for stores, Web Audio for sound, Tailwind v4 tokens, Motion for animation, Vitest for tests.
+
+## Screenshots
+
+Desktop and mobile captures of the main routes (Chromium, `pnpm build && node scripts/screenshots.mjs`).
+
+### Home
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/home-desktop.png" width="560" alt="Easy Minesweeper home, desktop"/> | <img src="screenshots/home-mobile.png" width="280" alt="Easy Minesweeper home, mobile"/> |
+
+### Play
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/play-desktop.png" width="560" alt="Minesweeper board, desktop"/> | <img src="screenshots/play-mobile.png" width="280" alt="Minesweeper board, mobile"/> |
+
+### Guides
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/blog-desktop.png" width="560" alt="Minesweeper guides index, desktop"/> | <img src="screenshots/blog-mobile.png" width="280" alt="Minesweeper guides index, mobile"/> |
+
+### Guide article
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/article-desktop.png" width="560" alt="How to play minesweeper article, desktop"/> | <img src="screenshots/article-mobile.png" width="280" alt="How to play minesweeper article, mobile"/> |
+
+### About
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/about-desktop.png" width="560" alt="About page, desktop"/> | <img src="screenshots/about-mobile.png" width="280" alt="About page, mobile"/> |
+
+### Privacy policy
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/privacy-desktop.png" width="560" alt="Privacy policy, desktop"/> | <img src="screenshots/privacy-mobile.png" width="280" alt="Privacy policy, mobile"/> |
+
+### 404
+
+| Desktop | Mobile |
+| --- | --- |
+| <img src="screenshots/404-desktop.png" width="560" alt="Custom 404 page, desktop"/> | <img src="screenshots/404-mobile.png" width="280" alt="Custom 404 page, mobile"/> |
 
 ## License
 

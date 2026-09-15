@@ -1,0 +1,38 @@
+# Easy Minesweeper
+
+Easy Minesweeper is a calm, offline-first minesweeper that runs entirely in your browser
+at https://easyminesweeper.vercel.app. It is a single-player logic game with five modes
+(classic, no-guess, daily, rush, zen) plus a practice mode, solver-backed teaching hints,
+records and achievements stored only on your device, and a PWA shell that keeps working
+fully offline once loaded.
+
+Think clearly. Clear everything.
+
+Made by Arun Neupane (https://github.com/arundada9000).
+
+## Key pages
+
+- Home: https://easyminesweeper.vercel.app/
+- Play the game: https://easyminesweeper.vercel.app/play/
+- All guides: https://easyminesweeper.vercel.app/blog/
+- About: https://easyminesweeper.vercel.app/about/
+- Privacy policy: https://easyminesweeper.vercel.app/privacy-policy/
+
+## Guides
+
+- How to play minesweeper: https://easyminesweeper.vercel.app/blog/how-to-play-minesweeper/
+- Minesweeper strategy for beginners: https://easyminesweeper.vercel.app/blog/minesweeper-strategy-for-beginners/
+- Minesweeper number patterns: https://easyminesweeper.vercel.app/blog/minesweeper-number-patterns/
+- No-guess mode: https://easyminesweeper.vercel.app/blog/no-guess-mode/
+- Minesweeper speed techniques: https://easyminesweeper.vercel.app/blog/minesweeper-speed-techniques/
+- 3BV and good times: https://easyminesweeper.vercel.app/blog/minesweeper-3bv-and-good-times/
+- Zen mode: https://easyminesweeper.vercel.app/blog/zen-mode/
+- Rush mode guide and tips: https://easyminesweeper.vercel.app/blog/rush-mode-guide-and-tips/
+- Daily minesweeper challenge: https://easyminesweeper.vercel.app/blog/daily-minesweeper-challenge/
+- Practice mode and smart hints: https://easyminesweeper.vercel.app/blog/practice-mode-and-smart-hints/
+- Custom minesweeper boards: https://easyminesweeper.vercel.app/blog/custom-minesweeper-boards/
+- Minesweeper probability and guessing: https://easyminesweeper.vercel.app/blog/minesweeper-probability-and-guessing/
+- Speedrun minesweeper records: https://easyminesweeper.vercel.app/blog/speedrun-minesweeper-records/
+- Play minesweeper on mobile: https://easyminesweeper.vercel.app/blog/play-minesweeper-on-mobile/
+- Minesweeper glossary: https://easyminesweeper.vercel.app/blog/minesweeper-glossary/
+- A brief history of minesweeper: https://easyminesweeper.vercel.app/blog/brief-history-of-minesweeper/

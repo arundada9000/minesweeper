@@ -14,6 +14,7 @@ import { useSettings, applySettingsToDocument, applyMotionMedia } from "@/game/u
 import { playSound, haptic, primeAudio } from "@/game/sound";
 import { getMode, MODE_LIST } from "@/engine/modes";
 import { getPreset } from "@/engine/presets";
+import { AUTHOR_NAME, AUTHOR_URL } from "@/lib/site";
 import type { PresetId, CustomBoardSpec } from "@/engine/presets";
 import type { ModeId } from "@/engine/types";
 import {
@@ -637,7 +638,7 @@ export function GameScreen() {
           </AnimatePresence>
         </div>
 
-        <div className="safe-bottom flex items-center justify-center gap-2 px-5 pb-2">
+        <div className="safe-bottom flex flex-col items-center justify-center gap-1.5 px-5 pb-2">
           {installEvt && !installed && (
             <button
               type="button"
@@ -650,6 +651,17 @@ export function GameScreen() {
               Install app
             </button>
           )}
+          <p className="text-2xs text-ink-muted">
+            Made by{" "}
+            <a
+              href={AUTHOR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-ink-soft transition-colors hover:text-ink"
+            >
+              {AUTHOR_NAME}
+            </a>
+          </p>
         </div>
       </main>
 

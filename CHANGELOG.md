@@ -6,6 +6,28 @@ semantic-version to the plan in `rules/plan.md`.
 
 ## [Unreleased]
 
+### Added
+
+- Google site verification meta tag for Search Console ownership.
+- `public/llms.txt` so LLM crawlers and AI answer engines can find and cite the site (GEO).
+- Per-route metadata for `/play`: canonical, title, description, Open Graph, and Twitter card.
+- Visible developer credit on the game screen, alongside the footer watermark and console easter egg.
+
+### Fixed
+
+- `/play` no longer canonicalizes to the homepage (the route emitted no metadata of its own).
+- Restarting a board no longer eats taps: pinch/zoom pointer counters are reset on every new
+  run (game-logic §45).
+- Negative mine counter renders as `-001`, not `0-1`.
+- Daily, center-anchored openings are never a first-click mine.
+- Perfect Run now counts wrong flag placements instead of leftover flags.
+- Onboarding dots, help-sheet read counts, context-menu clamping, and slider keyboard stepping
+  hardened.
+
+### Changed
+
+- Blog guides, robots, sitemap, manifest, and social cards re-audited against live output.
+
 ## [0.1.0 Stage 8] - 2026-09-13
 
 ### Added
