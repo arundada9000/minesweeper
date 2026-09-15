@@ -37,6 +37,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
   alternates: { canonical: "/" },
+  verification: { google: "y_iQncnrIS7Nycs-SFAgvF9aPPyozMkTeJhrDnmS2R0" },
 };
 
 export const viewport: Viewport = {
